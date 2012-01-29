@@ -9,22 +9,37 @@ uint y;
 uint z;
 } Coordinate;
 
+typedef struct {
+int x_width;
+int y_width;
+int z_width;
+} OctreeIndexParams;
+
 const uint MSB = 1 << (sizeof(uint) * 8 - 1);
+FILE *log_file;
 
 void print_coordinate (Coordinate c);
-uint octree_index (Coordinate c);
+uint octree_index (Coordinate c, OctreeIndexParams *p);
 uint top_bit (uint i);
 void transfer_msb (uint *a, uint *b);
 void var_encode_uint(uint a, int l, int d_l, char *bu);
 uint lsb_bitmask (int l);
+void enqueue_to_lsb (uint src, uint bitmask, uint *dst);
 
 int main ()
 {
+	log_file = fopen("log.txt", "w");
+
 	Coordinate c;
 	c.x = 2;
 	c.y = 1;
 	c.z = 1;
-	print_coordinate(c);
+	
+	OctreeIndexParams p;
+	p.x_width = 2;
+	p.y_width = 2;
+	p.z_width = 2;
+
 	return 0;
 }
 
@@ -33,16 +48,19 @@ void print_coordinate (Coordinate c)
 	printf("Coordinate(x=%d, y=%d, z=%d)\n", c.x, c.y, c.z);
 }
 
-uint octree_index (Coordinate c)
+uint octree_index (Coordinate c, OctreeIndexParams *p)
 {
-	uint i = 0;
-	while (c.x || c.y || c.z)
+	uint octree_index = 0;
+	int i = 32;
+	uint m = 1 << (sizeof(uint) * 8 - 1);
+	for (; i != 0 && m != 0; i--, m >>= 1)
 	{
-		transfer_msb(&(c.x), &i);
-		transfer_msb(&(c.y), &i);
-		transfer_msb(&(c.z), &i);
+		if (i <= p->x_width) enqueue_to_lsb(c.x, m, &octree_index);
+		if (i <= p->y_width) enqueue_to_lsb(c.y, m, &octree_index);
+		if (i <= p->z_width) enqueue_to_lsb(c.z, m, &octree_index);
 	}
-	return i;
+
+	return octree_index;
 }
 
 uint top_bit (uint i)
@@ -52,7 +70,7 @@ uint top_bit (uint i)
 
 void transfer_msb (uint *a, uint *b)
 {
-	// printf("a = %u; b = %u\n", *a, *b);
+	fprintf(log_file, "transfer_msb(a = %u; b = %u)\n", *a, *b);
 	*b <<= 1;
 	*b |= top_bit(*a);
 	*a <<= 1;
@@ -73,4 +91,11 @@ uint lsb_bitmask (int l)
 		l--;
 	}
 	return mask;
+}
+
+void enqueue_to_lsb (uint src, uint bitmask, uint *dst)
+{
+	fprintf(log_file, "enqueue_to_lsb(src = %d, bitmask = %u, dst = %u)\n", src, bitmask, *dst);
+	*dst <<= 1;
+	*dst |= (src & bitmask) ? 1 : 0;
 }
