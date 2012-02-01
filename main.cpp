@@ -23,14 +23,16 @@ FILE *log_file;
 
 void print_coordinate (Coordinate c);
 uint octree_index (Coordinate c, OctreeIndexParams *p);
-void var_encode_uint(uint a, int l, int d_l, char *bu);
+void var_encode_uint(uint a, int l, int d_l, char *buf);
 uint lsb_bitmask (int l);
 void enqueue_to_lsb (uint src, int bit_index, uint *dst);
+void bit_array_enqueue (char *a, char b);
+char msb_bit_mask (int n);
 
 int main ()
 {
-	// log_file = fopen("log.txt", "w");
-	log_file = stdout;
+	log_file = fopen("log.txt", "w");
+	// log_file = stdout;
 
 	Coordinate c(2, 1, 1);
 	OctreeIndexParams p(2, 2, 2);
@@ -58,9 +60,28 @@ uint octree_index (Coordinate c, OctreeIndexParams *p)
 	return octree_index;
 }
 
-void var_encode_uint(uint a, int l, int d_l, char *bu)
+void var_encode_uint(uint a, int l, int d_l, char *buf)
 {
-	
+/*
+	int byte_i = 0;
+	char tmp = 0;
+	for (int i = 0; i < l; i++)
+	{
+		tmp <<= 1;
+		tmp |= a & 1;
+		a >>= 1;
+		a &= ^(1<<31)
+	}
+	if (a)
+	{
+	}
+	else
+	{
+		buf[byte_i] <<= 1 + l;
+		buf[byte_i] |= tmp
+	}
+	printf("%c", buf[byte_i]);
+*/	
 }
 
 uint lsb_bitmask (int l)
@@ -80,4 +101,25 @@ void enqueue_to_lsb (uint src, int bit_index, uint *dst)
 	fprintf(log_file, "enqueue_to_lsb(src = %d, bit_index = %d, dst = %u)\n", src, bit_index, *dst);
 	*dst <<= 1;
 	*dst |= (src >> bit_index) & 1;
+}
+
+char msb_bit_mask (int n)
+{
+	char m = 0;
+	for (int i = 0; i < n; i++)
+	{
+		m >>= 1;
+		m |= 1 << 7;
+	}
+	return m;
+}
+
+// Enqueue n least-significant bits of b into bit array a
+void bit_array_enqueue (char *a, int a_n, char b, int b_n)
+{
+	char c[100];
+	for (int i = 0; i < a_n; i++)
+	{
+	}
+		
 }
