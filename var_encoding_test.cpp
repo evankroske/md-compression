@@ -35,5 +35,11 @@ int main ()
 	e_assert(bin("00000011") == 3, "0b00000011 == 3");
 	e_assert(bin("11000000") == 192, "0b11000000 == 192");
 
+	WriteableBitArray dst;
+	BitArray src(7, 3);
+	bit_array_append(&dst, &src); 
+	e_assert(dst.data[dst.active_byte_index] == msb_bit_mask(3), 
+		"data 1 appended");
+
 	return 0;
 }

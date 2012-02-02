@@ -1,7 +1,12 @@
 #include <iostream>
+#include <cstring>
 #include "omeltchenko99.h"
 
 using namespace std;
+
+typedef unsigned int uint;
+
+const uint MSB = 1 << (sizeof(uint) * 8 - 1);
 
 void print_coordinate (Coordinate c)
 {
@@ -21,9 +26,9 @@ uint octree_index (Coordinate c, OctreeIndexParams *p)
 	return octree_index;
 }
 
+/*
 void var_encode_uint(uint a, int l, int d_l, char *buf)
 {
-/*
 	int byte_i = 0;
 	char tmp = 0;
 	for (int i = 0; i < l; i++)
@@ -42,8 +47,8 @@ void var_encode_uint(uint a, int l, int d_l, char *buf)
 		buf[byte_i] |= tmp
 	}
 	printf("%c", buf[byte_i]);
-*/	
 }
+*/	
 
 uint lsb_bitmask (int l)
 {
@@ -74,12 +79,18 @@ unsigned char msb_bit_mask (int n)
 	return m;
 }
 
-// Enqueue n least-significant bits of b into bit array a
-void bit_array_enqueue (char *a, int a_n, char b, int b_n)
+// Write b into a
+void bit_array_append (WriteableBitArray *a, BitArray *b)
 {
-	char c[100];
-	for (int i = 0; i < a_n; i++)
+	int bits_written = 0;
+	while (bits_written != b->bits_used)
 	{
+		if (b->bits_used - bits_written <= 8)
+		{
+			
+		}
+		else
+		{
+			a->data[active_byte_index] |= 
 	}
-		
 }

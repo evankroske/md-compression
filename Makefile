@@ -1,7 +1,6 @@
-all: test_var_encoding
+all: main var_encoding_test
 
-test: main
-	./main
+test: test_var_encoding
 
 test_var_encoding: var_encoding_test
 	./var_encoding_test
