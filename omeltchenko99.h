@@ -1,10 +1,10 @@
 struct WriteableBitArray {
-const static int size = sizeof(unsigned long) + 1;
+const static int size = sizeof(unsigned long);
 unsigned char data[size];
-int active_byte_index;
-int active_bit_index;
-WriteableBitArray (): data(), active_byte_index(size - 1), 
-	active_bit_index(7) {};
+int active_byte;
+int bits_available;
+WriteableBitArray (): data(), active_byte(size - 1), 
+	bits_available(8) {};
 };
 
 struct BitArray {
@@ -31,7 +31,8 @@ OctreeIndexParams (int _x_width, int _y_width, int _z_width):
 
 void print_coordinate (Coordinate c);
 unsigned int octree_index (Coordinate c, OctreeIndexParams *p);
-unsigned int lsb_bitmask (int l);
 void enqueue_to_lsb (unsigned int src, int bit_index, unsigned int *dst);
 void bit_array_append (WriteableBitArray *a, BitArray *b);
-unsigned char msb_bit_mask (int n);
+unsigned long make_bitmask (int l, int n);
+unsigned long msb_bitmask (int n);
+unsigned long lsb_bitmask (int n);
