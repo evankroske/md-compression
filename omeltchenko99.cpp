@@ -56,28 +56,6 @@ void enqueue_to_lsb (uint src, int bit_index, uint *dst)
 	*dst |= (src >> bit_index) & 1;
 }
 
-unsigned long make_bitmask (int l, int n)
-{
-	unsigned long m = 0;
-	for (int i = 0; i < n; i++)
-	{
-		m <<= 1;
-		m |= 1;
-	}
-	m <<= l;
-	return m;
-}
-
-unsigned long lsb_bitmask (int n)
-{
-	return make_bitmask(0, n);
-}
-
-unsigned long msb_bitmask (int n)
-{
-	return make_bitmask(sizeof(unsigned long) - n - 1, n);
-}
-
 // Write bits from b into a
 void bit_array_append (WriteableBitArray *a, BitArray *b)
 {
@@ -87,10 +65,16 @@ void bit_array_append (WriteableBitArray *a, BitArray *b)
 	while (bits_written != b->bits_used)
 	{
 		// If there's less than a byte of data left to write
-		if (bits_not_written < a->bits_avaiable)
+		if (bits_not_written < a->bits_available)
 		{
+			/*
+			char *b_data_shifted = bin_to_str(b->data << 1);
+			puts(b_data_shifted);
+			free(b_data_shifted);
+			b_data_shifted = NULL;
+			*/
 			a->data[a->active_byte] |= (b->data << a->bits_available - 
-				a->bits_avaiable) & lsb_bitmask(a->bits_avaialable);
+				bits_not_written);
 			bits_last_written = bits_not_written;
 			// Reduce bits_available but don't decrement active_byte
 			a->bits_available -= bits_last_written;
@@ -98,7 +82,8 @@ void bit_array_append (WriteableBitArray *a, BitArray *b)
 		else
 		{
 			a->data[a->active_byte] |= (b->data >> bits_not_written - 
-				a->bits_available) & lsb_bitmask(a->bits_available);
+				a->bits_available) & lsb_bitmask<unsigned char>(
+				a->bits_available);
 			bits_last_written = a->bits_available;
 			// Reset bits_available and decrement byte_index
 			a->bits_available = 8;
