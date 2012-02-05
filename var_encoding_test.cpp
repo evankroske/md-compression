@@ -38,26 +38,14 @@ int main ()
 	{
 		WriteableBitArray dst;
 		BitArray src(str_to_bin<int>("110011001010"), 12);
-		puts_bin(str_to_bin<int>("110011001010"));
 		bit_array_append(&dst, &src);
 		e_assert(dst.data[dst.active_byte + 1] == 
 			str_to_bin<unsigned char>("11001100"),
 			"First byte of data 2");
-		puts_bin(dst.data[dst.active_byte + 1]);
 		e_assert(dst.data[dst.active_byte] ==
 			str_to_bin<unsigned char>("10100000"),
 			"Second byte of data 2");
-		puts_bin(dst.data[dst.active_byte]);
 	}
-
-
-	
-	/*
-	char *result = bin_to_str(msb_bitmask<unsigned char>(3));
-	puts(result);
-	free(result);
-	result = NULL;
-	*/
 
 	return 0;
 }
