@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstring>
 #include "omeltchenko99.h"
+#include "bin.h"
 
 using namespace std;
 
@@ -13,22 +14,6 @@ void e_assert (bool statement, char const *description)
 	else
 	{
 		printf("%s: Failed\n", description);
-	}
-}
-
-void read_md_data (Coordinate *c, FILE *f, int c_size, int *num_read)
-{
-	*num_read = 0;
-	for (int i = 0; i < c_size; i++)
-	{
-		int x, y, z;
-		fscanf(f, "%d %d %d", &x, &y, &z);
-		if (feof(f))
-		{
-			break;
-		}
-		c[i] = Coordinate(x, y, z);
-		(*num_read)++;
 	}
 }
 

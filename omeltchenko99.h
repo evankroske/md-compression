@@ -1,3 +1,5 @@
+#ifndef OMELTCHENKO99
+#define OMELTCHENKO99
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
@@ -33,51 +35,11 @@ OctreeIndexParams (int _x_width, int _y_width, int _z_width):
 	x_width(_x_width), y_width(_y_width), z_width(_z_width) {};
 };
 
-void print_coordinate (Coordinate c);
 unsigned int octree_index (Coordinate *c, OctreeIndexParams *p);
 void enqueue_to_lsb (int src, int bit_index, unsigned int *dst);
 void bit_array_append (WriteableBitArray *a, BitArray *b);
-
-template <typename T>
-T str_to_bin (char const *n_str)
-{
-	T b = 0;
-	int n_len = strlen(n_str);
-	for (int i = 0; i < n_len; i++)
-	{
-		if (n_str[i] == '1')
-		{
-			b |= 1 << n_len - 1 - i;
-		}
-	}
-	return b;
-}
-
-template <typename T>
-void bin_to_str (char *dst, T n)
-{
-	for (int i = sizeof(T) * 8 - 1; i >= 0; i--)
-	{
-		int j = sizeof(T) * 8 - 1 - i;
-		if ((n >> i) & 1)
-		{
-			dst[j] = '1';
-		}
-		else
-		{
-			dst[j] = '0';
-		}
-	}
-}
-
-template <typename T>
-void puts_bin (T n)
-{
-	char *str = (char *)malloc(sizeof(T));
-	bin_to_str(str, n);
-	puts(str);
-	free(str);
-}
+void read_md_data (Coordinate *c, FILE *f, int c_size, int *num_read);
+void print_coordinate (Coordinate c);
 
 template <typename T>
 T make_bitmask (int l, int n)
@@ -103,5 +65,4 @@ T msb_bitmask (int n)
 {
 	return make_bitmask<T>(sizeof(T) * 8 - n, n);
 }
-
-
+#endif

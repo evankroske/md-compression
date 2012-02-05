@@ -13,4 +13,4 @@ test_md_data_generator: md_data_generator
 
 main: omeltchenko99.h omeltchenko99.o
 
-omeltchenko99_test: omeltchenko99.h omeltchenko99.o
+omeltchenko99_test: omeltchenko99.h omeltchenko99.o bin.h

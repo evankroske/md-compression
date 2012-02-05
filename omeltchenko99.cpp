@@ -1,5 +1,3 @@
-#include <iostream>
-#include <cstring>
 #include "omeltchenko99.h"
 
 using namespace std;
@@ -7,11 +5,6 @@ using namespace std;
 typedef unsigned int uint;
 
 const uint MSB = 1 << (sizeof(uint) * 8 - 1);
-
-void print_coordinate (Coordinate c)
-{
-	printf("Coordinate(x=%d, y=%d, z=%d)\n", c.x, c.y, c.z);
-}
 
 uint octree_index (Coordinate *c, OctreeIndexParams *p)
 {
@@ -69,3 +62,25 @@ void bit_array_append (WriteableBitArray *a, BitArray *b)
 		bits_not_written -= bits_last_written;
 	}
 }
+
+void read_md_data (Coordinate *c, FILE *f, int c_size, int *num_read)
+{
+	*num_read = 0;
+	for (int i = 0; i < c_size; i++)
+	{
+		int x, y, z;
+		fscanf(f, "%d %d %d", &x, &y, &z);
+		if (feof(f))
+		{
+			break;
+		}
+		c[i] = Coordinate(x, y, z);
+		(*num_read)++;
+	}
+}
+
+void print_coordinate (Coordinate c)
+{
+	printf("Coordinate(x=%d, y=%d, z=%d)\n", c.x, c.y, c.z);
+}
+
