@@ -1,16 +1,16 @@
 all: main var_encoding_test md_data_generator
 
-test: test_md_data_generator
+test: test_omeltchenko99
 
 clean:
-	rm -f *.o main var_encoding_test
+	rm -f *.o main omeltchenko99_test md_data_generator
 
-test_var_encoding: var_encoding_test
-	./var_encoding_test
+test_omeltchenko99: omeltchenko99_test
+	./omeltchenko99_test
 
 test_md_data_generator: md_data_generator
 	./md_data_generator
 
 main: omeltchenko99.h omeltchenko99.o
 
-var_encoding_test: omeltchenko99.h omeltchenko99.o
+omeltchenko99_test: omeltchenko99.h omeltchenko99.o

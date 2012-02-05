@@ -19,10 +19,10 @@ BitArray (unsigned long _data, int _bits_used): data(_data), bits_used(_bits_use
 };
 
 struct Coordinate {
-unsigned int x;
-unsigned int y;
-unsigned int z;
-Coordinate(unsigned int _x, unsigned int _y, unsigned int _z): x(_x), y(_y), z(_z) {};
+int x;
+int y;
+int z;
+Coordinate(int _x, int _y, int _z): x(_x), y(_y), z(_z) {};
 };
 
 struct OctreeIndexParams{
@@ -34,8 +34,8 @@ OctreeIndexParams (int _x_width, int _y_width, int _z_width):
 };
 
 void print_coordinate (Coordinate c);
-unsigned int octree_index (Coordinate c, OctreeIndexParams *p);
-void enqueue_to_lsb (unsigned int src, int bit_index, unsigned int *dst);
+unsigned int octree_index (Coordinate *c, OctreeIndexParams *p);
+void enqueue_to_lsb (int src, int bit_index, unsigned int *dst);
 void bit_array_append (WriteableBitArray *a, BitArray *b);
 
 template <typename T>

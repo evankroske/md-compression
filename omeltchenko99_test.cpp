@@ -16,6 +16,22 @@ void e_assert (bool statement, char const *description)
 	}
 }
 
+void read_md_data (Coordinate *c, FILE *f, int c_size, int *num_read)
+{
+	*num_read = 0;
+	for (int i = 0; i < c_size; i++)
+	{
+		int x, y, z;
+		fscanf(f, "%d %d %d", &x, &y, &z);
+		if (feof(f))
+		{
+			break;
+		}
+		c[i] = Coordinate(x, y, z);
+		(*num_read)++;
+	}
+}
+
 int main ()
 {
 	e_assert(false, "test test (should fail)");
@@ -28,6 +44,12 @@ int main ()
 	e_assert(str_to_bin<unsigned char>("11000000") == 192, "0b11000000 == 192");
 	e_assert(str_to_bin<unsigned int>("101010101010") == 2730, "0b101010101010 == 2730");
 
+	{
+		Coordinate c(0, 1, 2);
+		OctreeIndexParams p(2, 2, 2);
+		e_assert(octree_index(&c, &p) == str_to_bin<unsigned int>("001010"),
+			"test octree_index");
+	}
 	{
 		WriteableBitArray dst;
 		BitArray src(7, 3);
