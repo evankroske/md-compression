@@ -6,20 +6,20 @@ typedef unsigned int uint;
 
 const uint MSB = 1 << (sizeof(uint) * 8 - 1);
 
-uint octree_index (Coordinate *c, OctreeIndexParams *p)
+unsigned long octree_index (Coordinate &c, OctreeIndexParams &p)
 {
-	uint octree_index = 0;
-	for (int i = sizeof(uint) * 8 - 1; i >= 0; i--)
+	unsigned long octree_index = 0;
+	for (int i = sizeof(unsigned long) * 8 - 1; i >= 0; i--)
 	{
-		if (i <= p->x_width) enqueue_to_lsb(c->x, i, &octree_index);
-		if (i <= p->y_width) enqueue_to_lsb(c->y, i, &octree_index);
-		if (i <= p->z_width) enqueue_to_lsb(c->z, i, &octree_index);
+		if (i <= p.x_width) enqueue_to_lsb(c.x, i, &octree_index);
+		if (i <= p.y_width) enqueue_to_lsb(c.y, i, &octree_index);
+		if (i <= p.z_width) enqueue_to_lsb(c.z, i, &octree_index);
 	}
 
 	return octree_index;
 }
 
-void enqueue_to_lsb (int src, int bit_index, uint *dst)
+void enqueue_to_lsb (int src, int bit_index, unsigned long *dst)
 {
 	*dst <<= 1;
 	*dst |= (src >> bit_index) & 1;
@@ -63,10 +63,9 @@ void bit_array_append (WriteableBitArray *a, BitArray *b)
 	}
 }
 
-void read_md_data (Coordinate *c, FILE *f, int c_size, int *num_read)
+void read_md_data (vector<Coordinate> &coordinates, FILE *f)
 {
-	*num_read = 0;
-	for (int i = 0; i < c_size; i++)
+	while (true)
 	{
 		int x, y, z;
 		fscanf(f, "%d %d %d", &x, &y, &z);
@@ -74,8 +73,8 @@ void read_md_data (Coordinate *c, FILE *f, int c_size, int *num_read)
 		{
 			break;
 		}
-		c[i] = Coordinate(x, y, z);
-		(*num_read)++;
+		Coordinate c(x, y, z);
+		coordinates.push_back(c);
 	}
 }
 

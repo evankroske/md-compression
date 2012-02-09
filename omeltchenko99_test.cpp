@@ -32,7 +32,13 @@ int main ()
 	{
 		Coordinate c(0, 1, 2);
 		OctreeIndexParams p(2, 2, 2);
-		e_assert(octree_index(&c, &p) == str_to_bin<unsigned int>("001010"),
+		e_assert(octree_index(c, p) == str_to_bin<unsigned int>("001010"),
+			"test small octree_index");
+	}
+	{
+		Coordinate c(2056656370, 1672800921, 667203244);
+		OctreeIndexParams p(2, 2, 2);
+		e_assert(octree_index(c, p) == str_to_bin<unsigned int>("001010"),
 			"test octree_index");
 	}
 	{

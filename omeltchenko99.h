@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
+#include <vector>
 
 struct WriteableBitArray {
 const static int size = sizeof(unsigned long);
@@ -35,10 +36,10 @@ OctreeIndexParams (int _x_width, int _y_width, int _z_width):
 	x_width(_x_width), y_width(_y_width), z_width(_z_width) {};
 };
 
-unsigned int octree_index (Coordinate *c, OctreeIndexParams *p);
-void enqueue_to_lsb (int src, int bit_index, unsigned int *dst);
+unsigned long octree_index (Coordinate &c, OctreeIndexParams &p);
+void enqueue_to_lsb (int src, int bit_index, unsigned long *dst);
 void bit_array_append (WriteableBitArray *a, BitArray *b);
-void read_md_data (Coordinate *c, FILE *f, int c_size, int *num_read);
+void read_md_data (std::vector<Coordinate> &coordinates, FILE *f);
 void print_coordinate (Coordinate c);
 
 template <typename T>
