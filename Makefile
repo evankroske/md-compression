@@ -1,6 +1,6 @@
 all: main var_encoding_test md_data_generator mdshrink
 
-test: test_omeltchenko99
+test: test_mdshrink
 
 clean:
 	rm -f *.o main omeltchenko99_test md_data_generator
