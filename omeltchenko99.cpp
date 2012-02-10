@@ -6,10 +6,10 @@ typedef unsigned int uint;
 
 const uint MSB = 1 << (sizeof(uint) * 8 - 1);
 
-unsigned long octree_index (Coordinate &c, OctreeIndexParams &p)
+long long octree_index (Coordinate &c, OctreeIndexParams &p)
 {
-	unsigned long octree_index = 0;
-	for (int i = sizeof(unsigned long) * 8 - 1; i >= 0; i--)
+	long long octree_index = 0;
+	for (int i = sizeof(long long) * 8 - 1; i >= 0; i--)
 	{
 		if (i <= p.x_width) enqueue_to_lsb(c.x, i, &octree_index);
 		if (i <= p.y_width) enqueue_to_lsb(c.y, i, &octree_index);
@@ -19,7 +19,7 @@ unsigned long octree_index (Coordinate &c, OctreeIndexParams &p)
 	return octree_index;
 }
 
-void enqueue_to_lsb (int src, int bit_index, unsigned long *dst)
+void enqueue_to_lsb (int src, int bit_index, long long *dst)
 {
 	*dst <<= 1;
 	*dst |= (src >> bit_index) & 1;

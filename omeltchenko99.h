@@ -36,8 +36,14 @@ OctreeIndexParams (int _x_width, int _y_width, int _z_width):
 	x_width(_x_width), y_width(_y_width), z_width(_z_width) {};
 };
 
-unsigned long octree_index (Coordinate &c, OctreeIndexParams &p);
-void enqueue_to_lsb (int src, int bit_index, unsigned long *dst);
+struct VarEncodingParams {
+int l;
+int d_l;
+VarEncodingParams (int _l, int _d_l): l(_l), d_l(_d_l) {};
+};
+
+long long octree_index (Coordinate &c, OctreeIndexParams &p);
+void enqueue_to_lsb (int src, int bit_index, long long *dst);
 void bit_array_append (WriteableBitArray *a, BitArray *b);
 void read_md_data (std::vector<Coordinate> &coordinates, FILE *f);
 void print_coordinate (Coordinate c);
