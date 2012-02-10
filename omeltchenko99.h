@@ -56,7 +56,7 @@ Coordinate un_octree_index (long long octree_index, OctreeIndexParams &p);
 void enqueue_to_lsb (int src, int bit_index, long long *dst);
 void bit_array_append (WriteableBitArray *a, BitArray *b);
 void read_md_data (std::vector<Coordinate> &coordinates, FILE *f);
-void print_coordinate (Coordinate c);
+void print_coordinate (FILE *f, Coordinate &c);
 
 template <typename T>
 T make_bitmask (int l, int n)

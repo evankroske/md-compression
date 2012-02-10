@@ -29,9 +29,9 @@ Coordinate un_octree_index (long long octree_index, OctreeIndexParams &p)
 		// If there are bits of x left in the octree index, copy the least-
 		// significant uncopied bit from octree_index to the least-significant 
 		// unfilled bit of c.x
-		if (x_i < p.x_width) COPY_BIT_AND_INC(c.x, octree_index, x_i, i);
-		if (y_i < p.y_width) COPY_BIT_AND_INC(c.y, octree_index, y_i, i);
 		if (z_i < p.z_width) COPY_BIT_AND_INC(c.z, octree_index, z_i, i);
+		if (y_i < p.y_width) COPY_BIT_AND_INC(c.y, octree_index, y_i, i);
+		if (x_i < p.x_width) COPY_BIT_AND_INC(c.x, octree_index, x_i, i);
 	}
 	return c;
 }
@@ -53,12 +53,6 @@ void bit_array_append (WriteableBitArray *a, BitArray *b)
 		// If there's less than a byte of data left to write
 		if (bits_not_written < a->bits_available)
 		{
-			/*
-			char *b_data_shifted = bin_to_str(b->data << 1);
-			puts(b_data_shifted);
-			free(b_data_shifted);
-			b_data_shifted = NULL;
-			*/
 			a->data[a->active_byte] |= (b->data << a->bits_available - 
 				bits_not_written);
 			bits_last_written = bits_not_written;
@@ -95,8 +89,8 @@ void read_md_data (vector<Coordinate> &coordinates, FILE *f)
 	}
 }
 
-void print_coordinate (Coordinate c)
+void print_coordinate (FILE *f, Coordinate &c)
 {
-	printf("Coordinate(x=%u, y=%u, z=%u)\n", c.x, c.y, c.z);
+	fprintf(f, "%u\t%u\t%u\n", c.x, c.y, c.z);
 }
 
