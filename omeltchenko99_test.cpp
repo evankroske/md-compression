@@ -42,13 +42,14 @@ int main ()
 			"test small octree_index");
 	}
 	{
-		Coordinate c(2056656370, 1672800921, 667203244);
-		OctreeIndexParams p(2, 2, 2);
-		e_assert(octree_index(c, p) == str_to_bin<long long>("001010"),
+		Coordinate c(1530854, 570703, 1802708);
+		OctreeIndexParams p(21, 21, 21);
+		puts_bin(octree_index(c, p));
+		e_assert(octree_index(c, p) == 0x572d7168a7be15f2,
 			"test octree_index with big numbers");
 	}
 	{
-		long long i = str_to_bin<long long>("111111");
+		long i = str_to_bin<long>("111111");
 		puts_bin(i);
 		Coordinate c(3, 3, 3);
 		OctreeIndexParams p(2, 2, 2);
@@ -56,15 +57,14 @@ int main ()
 		e_assert(un_octree_index(i, p) == c, 
 			"un_octree_index with small numbers");
 	}
-	/*
 	{
-		long long i = str_to_bin<long long>("111111");
-		Coordinate c(3, 3, 3);
-		OctreeIndexParams p(32, 32, 32);
+		unsigned long i = 0x572d7168a7be15f2;
+		Coordinate c(1530854, 570703, 1802708);
+		OctreeIndexParams p(21, 21, 21);
+		print_coordinate(un_octree_index(i, p));
 		e_assert(un_octree_index(i, p) == c, 
 			"un_octree_index with large fields");
 	}
-	*/
 	{
 		WriteableBitArray dst;
 		BitArray src(7, 3);

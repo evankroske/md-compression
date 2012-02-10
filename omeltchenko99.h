@@ -22,9 +22,9 @@ BitArray (unsigned long _data, int _bits_used): data(_data), bits_used(_bits_use
 };
 
 struct Coordinate {
-int x;
-int y;
-int z;
+unsigned int x;
+unsigned int y;
+unsigned int z;
 Coordinate (): x(0), y(0), z(0) {};
 Coordinate(int _x, int _y, int _z): x(_x), y(_y), z(_z) {};
 bool operator== (Coordinate const &other)

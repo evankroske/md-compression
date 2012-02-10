@@ -97,6 +97,6 @@ void read_md_data (vector<Coordinate> &coordinates, FILE *f)
 
 void print_coordinate (Coordinate c)
 {
-	printf("Coordinate(x=%d, y=%d, z=%d)\n", c.x, c.y, c.z);
+	printf("Coordinate(x=%u, y=%u, z=%u)\n", c.x, c.y, c.z);
 }
 

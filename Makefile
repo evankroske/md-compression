@@ -22,3 +22,5 @@ main: omeltchenko99.h omeltchenko99.o
 omeltchenko99_test: omeltchenko99.h omeltchenko99.o bin.h
 
 mdshrink: omeltchenko99.o omeltchenko99.h
+
+md_data_generator: omeltchenko99.o
