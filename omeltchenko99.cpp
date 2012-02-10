@@ -1,5 +1,6 @@
 #include "omeltchenko99.h"
 
+#define COPY_BIT_AND_INC(dst, src, dst_i, src_i) dst |= ((src >> src_i++) & 1) << dst_i++
 using namespace std;
 
 typedef unsigned int uint;
@@ -11,12 +12,28 @@ long long octree_index (Coordinate &c, OctreeIndexParams &p)
 	long long octree_index = 0;
 	for (int i = sizeof(long long) * 8 - 1; i >= 0; i--)
 	{
-		if (i <= p.x_width) enqueue_to_lsb(c.x, i, &octree_index);
-		if (i <= p.y_width) enqueue_to_lsb(c.y, i, &octree_index);
-		if (i <= p.z_width) enqueue_to_lsb(c.z, i, &octree_index);
+		if (i < p.x_width) enqueue_to_lsb(c.x, i, &octree_index);
+		if (i < p.y_width) enqueue_to_lsb(c.y, i, &octree_index);
+		if (i < p.z_width) enqueue_to_lsb(c.z, i, &octree_index);
 	}
 
 	return octree_index;
+}
+
+Coordinate un_octree_index (long long octree_index, OctreeIndexParams &p)
+{
+	Coordinate c;
+	int index_bits_used = p.x_width + p.y_width + p.z_width;
+	for (int i = 0, x_i = 0, y_i = 0, z_i = 0; i < index_bits_used; )
+	{
+		// If there are bits of x left in the octree index, copy the least-
+		// significant uncopied bit from octree_index to the least-significant 
+		// unfilled bit of c.x
+		if (x_i < p.x_width) COPY_BIT_AND_INC(c.x, octree_index, x_i, i);
+		if (y_i < p.y_width) COPY_BIT_AND_INC(c.y, octree_index, y_i, i);
+		if (z_i < p.z_width) COPY_BIT_AND_INC(c.z, octree_index, z_i, i);
+	}
+	return c;
 }
 
 void enqueue_to_lsb (int src, int bit_index, long long *dst)

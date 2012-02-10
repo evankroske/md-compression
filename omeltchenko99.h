@@ -25,7 +25,16 @@ struct Coordinate {
 int x;
 int y;
 int z;
+Coordinate (): x(0), y(0), z(0) {};
 Coordinate(int _x, int _y, int _z): x(_x), y(_y), z(_z) {};
+bool operator== (Coordinate const &other)
+{
+	return x == other.x && y == other.y && z == other.z;
+};
+bool operator!= (Coordinate const &other)
+{
+	return !(*this == other);
+};
 };
 
 struct OctreeIndexParams{
@@ -43,6 +52,7 @@ VarEncodingParams (int _l, int _d_l): l(_l), d_l(_d_l) {};
 };
 
 long long octree_index (Coordinate &c, OctreeIndexParams &p);
+Coordinate un_octree_index (long long octree_index, OctreeIndexParams &p);
 void enqueue_to_lsb (int src, int bit_index, long long *dst);
 void bit_array_append (WriteableBitArray *a, BitArray *b);
 void read_md_data (std::vector<Coordinate> &coordinates, FILE *f);

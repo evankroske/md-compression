@@ -20,6 +20,7 @@ int compress (char *in_filename, char *out_filename, OctreeIndexParams &p, VarEn
 		i++;
 	}
 	fwrite(octree_indexes, sizeof(long long), coordinates.size(), out_file);
+	delete[] octree_indexes;
 	fclose(in_file);
 	fclose(out_file);
 	return 0;

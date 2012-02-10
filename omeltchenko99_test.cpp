@@ -28,7 +28,13 @@ int main ()
 	e_assert(str_to_bin<unsigned char>("00000011") == 3, "0b00000011 == 3");
 	e_assert(str_to_bin<unsigned char>("11000000") == 192, "0b11000000 == 192");
 	e_assert(str_to_bin<unsigned int>("101010101010") == 2730, "0b101010101010 == 2730");
-
+	{
+		Coordinate x(3, 4, 6);
+		Coordinate y(3, 4, 6);
+		Coordinate z(5, 3, 6);
+		e_assert(x == y, "Coordinate equality");
+		e_assert(x != z, "Coordinate inequality");
+	}
 	{
 		Coordinate c(0, 1, 2);
 		OctreeIndexParams p(2, 2, 2);
@@ -38,9 +44,27 @@ int main ()
 	{
 		Coordinate c(2056656370, 1672800921, 667203244);
 		OctreeIndexParams p(2, 2, 2);
-		e_assert(octree_index(c, p) == str_to_bin<unsigned int>("001010"),
-			"test octree_index");
+		e_assert(octree_index(c, p) == str_to_bin<long long>("001010"),
+			"test octree_index with big numbers");
 	}
+	{
+		long long i = str_to_bin<long long>("111111");
+		puts_bin(i);
+		Coordinate c(3, 3, 3);
+		OctreeIndexParams p(2, 2, 2);
+		print_coordinate(un_octree_index(i, p));
+		e_assert(un_octree_index(i, p) == c, 
+			"un_octree_index with small numbers");
+	}
+	/*
+	{
+		long long i = str_to_bin<long long>("111111");
+		Coordinate c(3, 3, 3);
+		OctreeIndexParams p(32, 32, 32);
+		e_assert(un_octree_index(i, p) == c, 
+			"un_octree_index with large fields");
+	}
+	*/
 	{
 		WriteableBitArray dst;
 		BitArray src(7, 3);
