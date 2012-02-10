@@ -20,9 +20,10 @@ T str_to_bin (char const *n_str)
 template <typename T>
 void bin_to_str (char *dst, T n)
 {
+	int j;
 	for (int i = sizeof(T) * 8 - 1; i >= 0; i--)
 	{
-		int j = sizeof(T) * 8 - 1 - i;
+		j = sizeof(T) * 8 - 1 - i;
 		if ((n >> i) & 1)
 		{
 			dst[j] = '1';
@@ -32,12 +33,13 @@ void bin_to_str (char *dst, T n)
 			dst[j] = '0';
 		}
 	}
+	dst[j + 1] = '\0';
 }
 
 template <typename T>
 void puts_bin (T n)
 {
-	char *str = (char *)malloc(sizeof(T));
+	char *str = (char *)malloc(sizeof(T) * 8 + 1);
 	bin_to_str(str, n);
 	puts(str);
 	free(str);
