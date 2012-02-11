@@ -1,16 +1,18 @@
 #include "omeltchenko99.h"
 
 #define COPY_BIT_AND_INC(dst, src, dst_i, src_i) dst |= ((src >> src_i++) & 1) << dst_i++
+#define SIGN_EXTEND(x, sig_bits) x |= msb_bitmask<unsigned int>(sizeof(unsigned int) * 8 - sig_bits)
+
 using namespace std;
 
 typedef unsigned int uint;
 
 const uint MSB = 1 << (sizeof(uint) * 8 - 1);
 
-long long octree_index (Coordinate &c, OctreeIndexParams &p)
+unsigned long octree_index (Coordinate &c, OctreeIndexParams &p)
 {
-	long long octree_index = 0;
-	for (int i = sizeof(long long) * 8 - 1; i >= 0; i--)
+	unsigned long octree_index = 0;
+	for (int i = sizeof(unsigned long) * 8 - 1; i >= 0; i--)
 	{
 		if (i < p.x_width) enqueue_to_lsb(c.x, i, &octree_index);
 		if (i < p.y_width) enqueue_to_lsb(c.y, i, &octree_index);
@@ -20,7 +22,7 @@ long long octree_index (Coordinate &c, OctreeIndexParams &p)
 	return octree_index;
 }
 
-Coordinate un_octree_index (long long octree_index, OctreeIndexParams &p)
+Coordinate un_octree_index (unsigned long octree_index, OctreeIndexParams &p)
 {
 	Coordinate c;
 	int index_bits_used = p.x_width + p.y_width + p.z_width;
@@ -33,10 +35,14 @@ Coordinate un_octree_index (long long octree_index, OctreeIndexParams &p)
 		if (y_i < p.y_width) COPY_BIT_AND_INC(c.y, octree_index, y_i, i);
 		if (x_i < p.x_width) COPY_BIT_AND_INC(c.x, octree_index, x_i, i);
 	}
+	// If the MSB of x is 1, pad x with 1s to interpret it as negative
+	if ((c.x >> (p.x_width - 1)) & 1) SIGN_EXTEND(c.x, p.x_width);
+	if ((c.y >> (p.y_width - 1)) & 1) SIGN_EXTEND(c.y, p.y_width);
+	if ((c.z >> (p.z_width - 1)) & 1) SIGN_EXTEND(c.z, p.z_width);
 	return c;
 }
 
-void enqueue_to_lsb (int src, int bit_index, long long *dst)
+void enqueue_to_lsb (int src, int bit_index, unsigned long *dst)
 {
 	*dst <<= 1;
 	*dst |= (src >> bit_index) & 1;
@@ -91,6 +97,6 @@ void read_md_data (vector<Coordinate> &coordinates, FILE *f)
 
 void print_coordinate (FILE *f, Coordinate &c)
 {
-	fprintf(f, "%u\t%u\t%u\n", c.x, c.y, c.z);
+	fprintf(f, "%d\t%d\t%d\n", c.x, c.y, c.z);
 }
 

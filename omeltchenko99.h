@@ -22,9 +22,9 @@ BitArray (unsigned long _data, int _bits_used): data(_data), bits_used(_bits_use
 };
 
 struct Coordinate {
-unsigned int x;
-unsigned int y;
-unsigned int z;
+int x;
+int y;
+int z;
 Coordinate (): x(0), y(0), z(0) {};
 Coordinate(int _x, int _y, int _z): x(_x), y(_y), z(_z) {};
 bool operator== (Coordinate const &other)
@@ -51,9 +51,9 @@ int d_l;
 VarEncodingParams (int _l, int _d_l): l(_l), d_l(_d_l) {};
 };
 
-long long octree_index (Coordinate &c, OctreeIndexParams &p);
-Coordinate un_octree_index (long long octree_index, OctreeIndexParams &p);
-void enqueue_to_lsb (int src, int bit_index, long long *dst);
+unsigned long octree_index (Coordinate &c, OctreeIndexParams &p);
+Coordinate un_octree_index (unsigned long octree_index, OctreeIndexParams &p);
+void enqueue_to_lsb (int src, int bit_index, unsigned long *dst);
 void bit_array_append (WriteableBitArray *a, BitArray *b);
 void read_md_data (std::vector<Coordinate> &coordinates, FILE *f);
 void print_coordinate (FILE *f, Coordinate &c);
