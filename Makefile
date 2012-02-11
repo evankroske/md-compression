@@ -1,4 +1,4 @@
-all: main var_encoding_test md_data_generator mdshrink
+all: main md_data_generator mdshrink omeltchenko99_test
 
 test: test_mdshrink
 
