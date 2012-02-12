@@ -9,18 +9,16 @@ void e_assert (bool statement, char const *description)
 {
 	if (statement)
 	{
-		printf("%s: Passed\n", description);
+		printf("%-60s Passed\n", description);
 	}
 	else
 	{
-		printf("%s: Failed\n", description);
+		printf("%-60s Failed\n", description);
 	}
 }
 
 int main ()
 {
-	e_assert(false, "test test (should fail)");
-
 	e_assert(make_bitmask<unsigned char>(1, 3) == 14, "make_bitmask test");
 	e_assert(msb_bitmask<unsigned char>(4) == 240, "msb_bitmask test");
 	e_assert(lsb_bitmask<unsigned char>(5) == 31, "lsb_bitmask test");
