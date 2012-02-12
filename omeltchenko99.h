@@ -48,7 +48,13 @@ OctreeIndexParams (int _x_width, int _y_width, int _z_width):
 struct VarEncodingParams {
 int l;
 int d_l;
-VarEncodingParams (int _l, int _d_l): l(_l), d_l(_d_l) {};
+int L;
+int d_L;
+int max_L;
+int max_d_L;
+VarEncodingParams (
+	int _l, int _d_l, int _L, int _d_L, int _max_L = 0, int _max_d_L = 0): 
+	l(_l), d_l(_d_l), L(_L), d_L(_d_L), max_L(_max_L), max_d_L(_max_d_L) {};
 };
 
 unsigned long octree_index (Coordinate &c, OctreeIndexParams &p);
