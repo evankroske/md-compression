@@ -48,6 +48,7 @@ int extract (char *in_filename, char *out_filename, OctreeIndexParams &p, VarEnc
 	}
 	fclose(in_file);
 	fclose(out_file);
+	delete[] octree_indexes;
 	return 0;
 }
 

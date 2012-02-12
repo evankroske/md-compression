@@ -1,6 +1,6 @@
 all: main md_data_generator mdshrink omeltchenko99_test
 
-test: test_mdshrink
+test: test_omeltchenko99
 
 clean:
 	rm -f *.o main omeltchenko99_test md_data_generator
