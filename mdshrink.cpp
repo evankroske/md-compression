@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <vector>
 #include "omeltchenko99.h"
+#include <algorithm>
 #include "bin.h"
 
 using namespace std;
@@ -11,7 +12,7 @@ int compress (char *in_filename, char *out_filename, OctreeIndexParams &p, VarEn
 	FILE *out_file = fopen(out_filename, "wb");
 	vector<Coordinate> coordinates;
 	read_md_data(coordinates, in_file);
-	long *octree_indexes = new long[coordinates.size()];
+	unsigned long *octree_indexes = new unsigned long[coordinates.size()];
 	int i = 0;
 	for (vector<Coordinate>::iterator c = coordinates.begin();
 		c != coordinates.end();
@@ -20,6 +21,8 @@ int compress (char *in_filename, char *out_filename, OctreeIndexParams &p, VarEn
 		octree_indexes[i] = octree_index(*c, p);
 		i++;
 	}
+	//sort(octree_indexes, octree_indexes + coordinates.size());
+	//compute_differences(octree_indexes, coordinates.size());
 	fwrite(octree_indexes, sizeof(long), coordinates.size(), out_file);
 	delete[] octree_indexes;
 	fclose(in_file);

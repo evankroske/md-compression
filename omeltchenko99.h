@@ -57,6 +57,8 @@ void enqueue_to_lsb (int src, int bit_index, unsigned long *dst);
 void bit_array_append (WriteableBitArray *a, BitArray *b);
 void read_md_data (std::vector<Coordinate> &coordinates, FILE *f);
 void print_coordinate (FILE *f, Coordinate &c);
+void compute_differences (unsigned long *indexes, int n);
+void compute_sums (unsigned long *indexes, int n);
 
 template <typename T>
 T make_bitmask (int l, int n)

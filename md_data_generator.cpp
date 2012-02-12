@@ -32,7 +32,9 @@ int main (int argc, char **argv)
 	srand(time(NULL));
 	for (int i = 0; i < num_coordinates; i++)
 	{
-		printf("%10d\t%10d\t%10d\n", signed_rand(bits_x), signed_rand(bits_y), signed_rand(bits_z));
+		Coordinate c(signed_rand(bits_x), signed_rand(bits_y), 
+			signed_rand(bits_z));
+		print_coordinate(stdout, c);
 	}
 
 	return 0;

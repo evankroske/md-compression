@@ -97,6 +97,21 @@ void read_md_data (vector<Coordinate> &coordinates, FILE *f)
 
 void print_coordinate (FILE *f, Coordinate &c)
 {
-	fprintf(f, "%d\t%d\t%d\n", c.x, c.y, c.z);
+	fprintf(f, "%10d %10d %10d\n", c.x, c.y, c.z);
 }
 
+void compute_differences (unsigned long *indexes, int n)
+{
+	for (int i = n - 1; i >= 1; i--)
+	{
+		indexes[i] -= indexes[i - 1];
+	}
+}
+
+void compute_sums (unsigned long *indexes, int n)
+{
+	for (int i = 1; i < n; i++)
+	{
+		indexes[i] += indexes[i - 1];
+	}
+}
