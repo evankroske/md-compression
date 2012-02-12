@@ -21,9 +21,11 @@ int compress (char *in_filename, char *out_filename, OctreeIndexParams &p, VarEn
 		octree_indexes[i] = octree_index(*c, p);
 		i++;
 	}
-	//sort(octree_indexes, octree_indexes + coordinates.size());
-	//compute_differences(octree_indexes, coordinates.size());
-	fwrite(octree_indexes, sizeof(long), coordinates.size(), out_file);
+	sort(octree_indexes, octree_indexes + coordinates.size());
+	compute_differences(octree_indexes, coordinates.size());
+	int num_indexes = coordinates.size();
+	fwrite(&num_indexes, sizeof(int), 1, out_file);
+	fwrite(octree_indexes, sizeof(unsigned long), coordinates.size(), out_file);
 	delete[] octree_indexes;
 	fclose(in_file);
 	fclose(out_file);
@@ -34,22 +36,14 @@ int extract (char *in_filename, char *out_filename, OctreeIndexParams &p, VarEnc
 {
 	FILE *in_file = fopen(in_filename, "rb");
 	FILE *out_file = fopen(out_filename, "w");
-	vector<long> octree_indexes;
-	long octree_index = 0;
-	while (true)
+	int num_indexes = 0;
+	fread(&num_indexes, sizeof(int), 1, in_file);
+	unsigned long *octree_indexes = new unsigned long[num_indexes];
+	fread(octree_indexes, sizeof(unsigned long), num_indexes, in_file);
+	compute_sums(octree_indexes, num_indexes);
+	for (int i = 0; i < num_indexes; i++)
 	{
-		fread(&octree_index, sizeof(long), 1, in_file);
-		if (feof(in_file))
-		{
-			break;
-		}
-		octree_indexes.push_back(octree_index);
-	}
-	for (vector<long>::iterator i = octree_indexes.begin();
-		i != octree_indexes.end();
-		i++)
-	{
-		Coordinate c = un_octree_index(*i, p);
+		Coordinate c = un_octree_index(octree_indexes[i], p);
 		print_coordinate(out_file, c);
 	}
 	fclose(in_file);

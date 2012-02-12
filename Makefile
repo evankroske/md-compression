@@ -12,9 +12,10 @@ test_md_data_generator: md_data_generator
 	./md_data_generator
 
 test_mdshrink: mdshrink md_data_generator
-	./md_data_generator > data.txt; \
+	./md_data_generator | sort > data.txt; \
 	./mdshrink -c data.txt compressed; \
-	./mdshrink -x compressed uncompressed.txt
+	./mdshrink -x compressed uncompressed.txt; \
+	sort < uncompressed.txt | diff data.txt -
 
 main: omeltchenko99.h omeltchenko99.o
 
