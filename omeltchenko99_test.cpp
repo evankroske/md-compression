@@ -99,6 +99,20 @@ int main ()
 			str_to_bin<unsigned char>("10100000"),
 			"Second byte of data 2");
 	}
+	{
+		unsigned long a = 1;
+		VarEncodingParams v(3, 2);
+		BitArray a_encoded = var_encode_index(a, v);
+		e_assert(a_encoded.data == 4, "var_encode_index tiny number");
+		e_assert(v.L == -2, "var_encode_index parameter adaptivity");
+	}
+	{
+		unsigned long index = str_to_bin<unsigned long>("00011101");
+		VarEncodingParams v(3, 2);
+		BitArray encoded_index = var_encode_index(index, v);
+		e_assert(encoded_index.data == str_to_bin<unsigned long>("1101011"),
+			"var_encode_index small number test");
+	}
 
 	return 0;
 }

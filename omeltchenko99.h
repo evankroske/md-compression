@@ -53,7 +53,12 @@ int d_L;
 int max_L;
 int max_d_L;
 VarEncodingParams (
-	int _l, int _d_l, int _L, int _d_L, int _max_L = 0, int _max_d_L = 0): 
+	int _l, 
+	int _d_l, 
+	int _L = 0, 
+	int _d_L = 0, 
+	int _max_L = 32, 
+	int _max_d_L = 32): 
 	l(_l), d_l(_d_l), L(_L), d_L(_d_L), max_L(_max_L), max_d_L(_max_d_L) {};
 };
 
@@ -65,6 +70,7 @@ void read_md_data (std::vector<Coordinate> &coordinates, FILE *f);
 void print_coordinate (FILE *f, Coordinate &c);
 void compute_differences (unsigned long *indexes, int n);
 void compute_sums (unsigned long *indexes, int n);
+BitArray var_encode_index (unsigned long index, VarEncodingParams &p);
 
 template <typename T>
 T make_bitmask (int l, int n)

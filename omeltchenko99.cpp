@@ -1,4 +1,5 @@
 #include "omeltchenko99.h"
+#include "bin.h"
 
 #define COPY_BIT_AND_INC(dst, src, dst_i, src_i) dst |= ((src >> src_i++) & 1) << dst_i++
 #define SIGN_EXTEND(x, sig_bits) x |= msb_bitmask<unsigned int>(sizeof(unsigned int) * 8 - sig_bits)
@@ -114,4 +115,30 @@ void compute_sums (unsigned long *indexes, int n)
 	{
 		indexes[i] += indexes[i - 1];
 	}
+}
+
+BitArray var_encode_index (unsigned long index, VarEncodingParams &p)
+{
+	BitArray out;
+	for (int i = 0; i < p.l; i++)
+	{
+		out.data <<= 1;
+		out.data |= (index >> i) & 1;
+	}
+
+	if (index >> p.l)
+	{
+		out.data |= 1 << p.l;
+		p.L++;
+	}
+	else
+	{
+		int unused_bits;
+		for (unused_bits = 0; 
+			unused_bits < p.l && !((out.data >> unused_bits) & 1); 
+			unused_bits++);
+		p.L -= unused_bits;
+	}
+	out.bits_used = p.l + 1;
+	return out;
 }
