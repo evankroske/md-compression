@@ -15,9 +15,9 @@ unsigned long octree_index (Coordinate &c, OctreeIndexParams &p)
 	unsigned long octree_index = 0;
 	for (int i = sizeof(unsigned long) * 8 - 1; i >= 0; i--)
 	{
-		if (i < p.x_width) enqueue_to_lsb(c.x, i, &octree_index);
-		if (i < p.y_width) enqueue_to_lsb(c.y, i, &octree_index);
-		if (i < p.z_width) enqueue_to_lsb(c.z, i, &octree_index);
+		if (i < p.x_width) octree_index = append_bit(c.x, octree_index, i);
+		if (i < p.y_width) octree_index = append_bit(c.y, octree_index, i);
+		if (i < p.z_width) octree_index = append_bit(c.z, octree_index, i);
 	}
 
 	return octree_index;
@@ -41,12 +41,6 @@ Coordinate un_octree_index (unsigned long octree_index, OctreeIndexParams &p)
 	if ((c.y >> (p.y_width - 1)) & 1) SIGN_EXTEND(c.y, p.y_width);
 	if ((c.z >> (p.z_width - 1)) & 1) SIGN_EXTEND(c.z, p.z_width);
 	return c;
-}
-
-void enqueue_to_lsb (int src, int bit_index, unsigned long *dst)
-{
-	*dst <<= 1;
-	*dst |= (src >> bit_index) & 1;
 }
 
 // Write bits from b into a
@@ -129,7 +123,6 @@ BitArray var_encode_index (unsigned long index, VarEncodingParams &p)
 	if (index >> p.l)
 	{
 		out.data |= 1 << p.l;
-		p.L++;
 	}
 	else
 	{
@@ -140,5 +133,9 @@ BitArray var_encode_index (unsigned long index, VarEncodingParams &p)
 		p.L -= unused_bits;
 	}
 	out.bits_used = p.l + 1;
+	for (int i = p.l; index >> i; i += p.d_l)
+	{
+		
+	}
 	return out;
 }

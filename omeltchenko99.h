@@ -96,4 +96,11 @@ T msb_bitmask (int n)
 {
 	return make_bitmask<T>(sizeof(T) * 8 - n, n);
 }
+
+template <typename A, typename B>
+B append_bit (A src, B dst, int bit_index)
+{
+	return (dst << 1) | ((src >> bit_index) & 1);
+}
+
 #endif
