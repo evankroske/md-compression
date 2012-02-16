@@ -104,14 +104,44 @@ int main ()
 		VarEncodingParams v(3, 2);
 		BitArray a_encoded = var_encode_index(a, v);
 		e_assert(a_encoded.data == 4, "var_encode_index tiny number");
-		e_assert(v.L == -2, "var_encode_index parameter adaptivity");
+		e_assert(v.L == -2, "var_encode_index L increase");
 	}
 	{
 		unsigned long index = str_to_bin<unsigned long>("00011101");
 		VarEncodingParams v(3, 2);
 		BitArray encoded_index = var_encode_index(index, v);
 		e_assert(encoded_index.data == str_to_bin<unsigned long>("1101011"),
-			"var_encode_index small number test");
+			"var_encode_index small number");
+		e_assert(v.L == 1, 
+			"var_encode_index L increase");
+	}
+	{
+		unsigned long index = str_to_bin<unsigned long>("001101");
+		VarEncodingParams v(3, 3);
+		BitArray encoded_index = var_encode_index(index, v);
+		e_assert(v.d_L == -2, 
+			"var_encode_index d_L decrease");
+	}
+	{
+		unsigned long index = str_to_bin<unsigned long>("1001101");
+		VarEncodingParams v(3, 2);
+		BitArray encoded_index = var_encode_index(index, v);
+		e_assert(v.d_L == 1, 
+			"var_encode_index d_L increase");
+	}
+	{
+		unsigned long index = str_to_bin<unsigned long>("10101010101");
+		VarEncodingParams v(3, 2, 0, 0, 2, 2);
+		BitArray encoded_index = var_encode_index(index, v);
+		e_assert(v.d_l == 3 && v.d_L == 0, 
+			"var_encode_index d_l increased in response to d_L");
+	}
+	{
+		BitArray b(0xd1, 8);
+		VarEncodingParams p(3, 3);
+		unsigned long decoded_index = var_decode_index(b, p);
+		e_assert(decoded_index == str_to_bin<unsigned long>("100101"),
+			"var_decode_index decode short index");
 	}
 
 	return 0;

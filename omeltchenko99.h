@@ -71,6 +71,8 @@ void print_coordinate (FILE *f, Coordinate &c);
 void compute_differences (unsigned long *indexes, int n);
 void compute_sums (unsigned long *indexes, int n);
 BitArray var_encode_index (unsigned long index, VarEncodingParams &p);
+unsigned long var_decode_index (BitArray in, VarEncodingParams &p);
+void adjust_var_encoding_params (VarEncodingParams &p);
 
 template <typename T>
 T make_bitmask (int l, int n)

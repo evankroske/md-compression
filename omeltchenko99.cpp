@@ -10,6 +10,8 @@ typedef unsigned int uint;
 
 const uint MSB = 1 << (sizeof(uint) * 8 - 1);
 
+int count_trailing_zeros (unsigned long a, int max);
+
 unsigned long octree_index (Coordinate &c, OctreeIndexParams &p)
 {
 	unsigned long octree_index = 0;
@@ -111,31 +113,83 @@ void compute_sums (unsigned long *indexes, int n)
 	}
 }
 
+void transfer_bits (BitArray *out, unsigned long *index, int num_bits)
+{
+	for (int i = 0; i < num_bits; i++)
+	{
+		out->data <<= 1;
+		out->data |= *index & 1;
+		*index >>= 1;
+	}
+	out->bits_used += num_bits;
+}
+
+int count_trailing_zeros (unsigned long a, int max)
+{
+	int unused_bits;
+	for (unused_bits = 0; 
+		unused_bits < max && !((a >> unused_bits) & 1); 
+		unused_bits++);
+	return unused_bits;
+}
+
 BitArray var_encode_index (unsigned long index, VarEncodingParams &p)
 {
 	BitArray out;
-	for (int i = 0; i < p.l; i++)
-	{
-		out.data <<= 1;
-		out.data |= (index >> i) & 1;
-	}
-
-	if (index >> p.l)
+	transfer_bits(&out, &index, p.l);
+	if (index)
 	{
 		out.data |= 1 << p.l;
 	}
 	else
 	{
-		int unused_bits;
-		for (unused_bits = 0; 
-			unused_bits < p.l && !((out.data >> unused_bits) & 1); 
-			unused_bits++);
-		p.L -= unused_bits;
+		p.L -= count_trailing_zeros(out.data, p.l);
 	}
-	out.bits_used = p.l + 1;
-	for (int i = p.l; index >> i; i += p.d_l)
+	out.bits_used += 1;
+
+	while (index)
 	{
-		
+		out.data <<= 1;
+		transfer_bits(&out, &index, p.d_l);
+		if (index)
+		{
+			out.data |= 1 << p.d_l;
+			p.d_L++;
+		}
+		else
+		{
+			p.d_L -= count_trailing_zeros(out.data, p.d_l);
+		}
+		p.L++;
 	}
+	adjust_var_encoding_params (p);
 	return out;
+}
+
+unsigned long var_decode_index (BitArray in, VarEncodingParams &p)
+{
+}
+
+void adjust_var_encoding_params (VarEncodingParams &p)
+{
+	if (p.L > p.max_L)
+	{
+		p.l++;
+		p.L = 0;
+	}
+	else if (p.L < -p.max_L)
+	{
+		p.l--;
+		p.L = 0;
+	}
+	if (p.d_L > p.max_d_L)
+	{
+		p.d_l++;
+		p.d_L = 0;
+	}
+	else if (p.d_L < -p.max_d_L)
+	{
+		p.d_l--;
+		p.d_L = 0;
+	}
 }
