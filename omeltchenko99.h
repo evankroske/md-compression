@@ -5,6 +5,8 @@
 #include <cstring>
 #include <vector>
 
+typedef unsigned long OctreeIndex;
+
 struct WriteableBitArray {
 const static int size = sizeof(unsigned long) + 1;
 unsigned char data[size];
@@ -19,7 +21,7 @@ const static int size = sizeof(unsigned long) + 1;
 unsigned char data[size];
 int active_byte;
 int bits_not_read;
-ReadableBitArray (): data(), active_byte(0), 
+ReadableBitArray (): data(), active_byte(size), 
 	bits_not_read(8) {};
 };
 
@@ -75,7 +77,9 @@ unsigned long octree_index (Coordinate &c, OctreeIndexParams &p);
 Coordinate un_octree_index (unsigned long octree_index, OctreeIndexParams &p);
 void enqueue_to_lsb (int src, int bit_index, unsigned long *dst);
 
-void bit_array_append (WriteableBitArray *a, BitArray *b);
+void bit_array_append (WriteableBitArray *a, OctreeIndex index);
+void write_bit_array (FILE *out, WriteableBitArray *in);
+void read_bit_array (FILE *in, ReadableBitArray *out);
 
 void read_md_data (std::vector<Coordinate> &coordinates, FILE *f);
 void print_coordinate (FILE *f, Coordinate &c);

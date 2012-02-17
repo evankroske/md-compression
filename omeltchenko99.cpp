@@ -14,6 +14,7 @@ const uint MSB = 1 << (sizeof(uint) * 8 - 1);
 
 int count_trailing_zeros (unsigned long a, int max);
 int count_leading_zeros (unsigned int index, int bit_index, int max);
+int count_used_bits (OctreeIndex index);
 
 unsigned long octree_index (Coordinate &c, OctreeIndexParams &p)
 {
@@ -48,18 +49,19 @@ Coordinate un_octree_index (unsigned long octree_index, OctreeIndexParams &p)
 	return c;
 }
 
-// Write bits from b into a
-void bit_array_append (WriteableBitArray *a, BitArray *b)
+// Write used bits from index into a
+void bit_array_append (WriteableBitArray *a, OctreeIndex index)
 {
+	int bits_used = count_used_bits(index);
 	int bits_written = 0;
-	int bits_not_written = b->bits_used;
+	int bits_not_written = bits_used;
 	int bits_last_written = 0;
-	while (bits_written < b->bits_used)
+	while (bits_written < bits_used)
 	{
 		// If there's less than a byte of data left to write
 		if (bits_not_written < a->bits_available)
 		{
-			a->data[a->active_byte] |= (b->data << a->bits_available - 
+			a->data[a->active_byte] |= (index << a->bits_available - 
 				bits_not_written);
 			bits_last_written = bits_not_written;
 			// Reduce bits_available but don't decrement active_byte
@@ -67,7 +69,7 @@ void bit_array_append (WriteableBitArray *a, BitArray *b)
 		}
 		else
 		{
-			a->data[a->active_byte] |= (b->data >> bits_not_written - 
+			a->data[a->active_byte] |= (index >> bits_not_written - 
 				a->bits_available) & lsb_bitmask<unsigned char>(
 				a->bits_available);
 			bits_last_written = a->bits_available;
@@ -234,5 +236,44 @@ void adjust_var_encoding_params (VarEncodingParams &p)
 	{
 		p.d_l--;
 		p.d_L = 0;
+	}
+}
+
+int count_used_bits (OctreeIndex index)
+{
+	int used_bits;
+	for (used_bits = 0;
+		index >> used_bits;
+		used_bits++);
+	return used_bits;
+}
+
+void write_bit_array (FILE *out, WriteableBitArray *in)
+{
+	if (in->active_byte > 0)
+	{
+		fwrite(in->data, sizeof(char), in->active_byte, out);
+		unsigned char *tmp = new unsigned char[in->size]();
+		memcpy(tmp, in->data + in->active_byte, in->size - in->active_byte);
+		memcpy(in->data, tmp, in->size);
+		in->active_byte = 0;
+		delete[] tmp;
+	}
+	else
+	{
+		fwrite(in->data, sizeof(char), 1, out);
+		in->data[0] = 0x0;
+		in->bits_available = 8;
+	}
+}
+
+void read_bit_array (FILE *in, ReadableBitArray *out)
+{
+	if (out->active_byte > 0)
+	{
+		unsigned char *tmp = new unsigned char[out->size]();
+		fread(tmp, sizeof(char), out->active_byte, in);
+		memcpy(tmp, out->data + out->active_byte, out->size - out->active_byte);
+		memcpy(out->data, tmp, out->size);
 	}
 }

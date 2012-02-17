@@ -91,16 +91,16 @@ int main ()
 
 	{
 		WriteableBitArray dst;
-		BitArray src(7, 3);
-		bit_array_append(&dst, &src); 
+		unsigned long index = 0x7;
+		bit_array_append(&dst, index); 
 		e_assert(dst.data[dst.active_byte] == msb_bitmask<unsigned char>(3), 
 			"data 1 appended");
 	}
 
 	{
 		WriteableBitArray dst;
-		BitArray src(str_to_bin<int>("110011001010"), 12);
-		bit_array_append(&dst, &src);
+		unsigned long src = str_to_bin<int>("110011001010");
+		bit_array_append(&dst, src);
 		e_assert(dst.data[dst.active_byte - 1] == 
 			str_to_bin<unsigned char>("11001100"),
 			"First byte of data 2");
@@ -185,11 +185,39 @@ int main ()
 
 	{
 		ReadableBitArray a;
+		a.data[a.active_byte] = 0xca;
+		a.data[a.active_byte + 1] = 0x40;
+		VarEncodingParams p(3, 2);
+		unsigned long decoded_index = var_decode_index(&a, p);
+		e_assert(p.d_L == 1,
+			"var_decode_index d_L increase");
+		e_assert(decoded_index == 0x51,
+			"var_decode_index different l and d_l values");
+	}
+
+	{
+		ReadableBitArray a;
 		a.data[a.active_byte] = 0xd1;
 		VarEncodingParams p(3, 3);
 		unsigned long decoded_index = var_decode_index(&a, p);
 		e_assert(p.L == 1,
 			"var_decode_index L increase");
+	}
+
+	{
+		FILE *test_file = tmpfile();
+		WriteableBitArray a;
+		ReadableBitArray b;
+		a.data[a.active_byte] = 0xd1;
+
+		write_bit_array(test_file, &a);
+		e_assert(a.active_byte == 0 && a.data[a.active_byte] == 0x0,
+			"write_bit_array write partial byte");
+		rewind(test_file);
+		read_bit_array(test_file, &b);
+		e_assert(b.data[0] == 0xd1,
+			"read_bit_array read byte");
+		fclose(test_file);
 	}
 
 	return 0;
