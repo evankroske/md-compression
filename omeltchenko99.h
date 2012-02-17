@@ -6,12 +6,21 @@
 #include <vector>
 
 struct WriteableBitArray {
-const static int size = sizeof(unsigned long);
+const static int size = sizeof(unsigned long) + 1;
 unsigned char data[size];
 int active_byte;
 int bits_available;
-WriteableBitArray (): data(), active_byte(size - 1), 
+WriteableBitArray (): data(), active_byte(0), 
 	bits_available(8) {};
+};
+
+struct ReadableBitArray {
+const static int size = sizeof(unsigned long) + 1;
+unsigned char data[size];
+int active_byte;
+int bits_not_read;
+ReadableBitArray (): data(), active_byte(0), 
+	bits_not_read(8) {};
 };
 
 struct BitArray {
@@ -65,13 +74,18 @@ VarEncodingParams (
 unsigned long octree_index (Coordinate &c, OctreeIndexParams &p);
 Coordinate un_octree_index (unsigned long octree_index, OctreeIndexParams &p);
 void enqueue_to_lsb (int src, int bit_index, unsigned long *dst);
+
 void bit_array_append (WriteableBitArray *a, BitArray *b);
+
 void read_md_data (std::vector<Coordinate> &coordinates, FILE *f);
 void print_coordinate (FILE *f, Coordinate &c);
+
 void compute_differences (unsigned long *indexes, int n);
 void compute_sums (unsigned long *indexes, int n);
+
 BitArray var_encode_index (unsigned long index, VarEncodingParams &p);
-unsigned long var_decode_index (BitArray in, VarEncodingParams &p);
+unsigned long var_decode_index (ReadableBitArray *in, VarEncodingParams &p);
+
 void adjust_var_encoding_params (VarEncodingParams &p);
 
 template <typename T>

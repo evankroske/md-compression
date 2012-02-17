@@ -3,6 +3,8 @@
 
 #define COPY_BIT_AND_INC(dst, src, dst_i, src_i) dst |= ((src >> src_i++) & 1) << dst_i++
 #define SIGN_EXTEND(x, sig_bits) x |= msb_bitmask<unsigned int>(sizeof(unsigned int) * 8 - sig_bits)
+#define NEXT_BIT(a) ((a->data[a->active_byte] >> a->bits_not_read - 1) & 1)
+#define DROP_BIT(a) if (--(a->bits_not_read) == 0) { (a->active_byte)++; a->bits_not_read = 8;}
 
 using namespace std;
 
@@ -11,6 +13,7 @@ typedef unsigned int uint;
 const uint MSB = 1 << (sizeof(uint) * 8 - 1);
 
 int count_trailing_zeros (unsigned long a, int max);
+int count_leading_zeros (unsigned int index, int bit_index, int max);
 
 unsigned long octree_index (Coordinate &c, OctreeIndexParams &p)
 {
@@ -51,7 +54,7 @@ void bit_array_append (WriteableBitArray *a, BitArray *b)
 	int bits_written = 0;
 	int bits_not_written = b->bits_used;
 	int bits_last_written = 0;
-	while (bits_written != b->bits_used)
+	while (bits_written < b->bits_used)
 	{
 		// If there's less than a byte of data left to write
 		if (bits_not_written < a->bits_available)
@@ -70,7 +73,7 @@ void bit_array_append (WriteableBitArray *a, BitArray *b)
 			bits_last_written = a->bits_available;
 			// Reset bits_available and decrement byte_index
 			a->bits_available = 8;
-			a->active_byte -= 1;
+			a->active_byte++;
 		}
 		bits_written += bits_last_written;
 		bits_not_written -= bits_last_written;
@@ -166,8 +169,48 @@ BitArray var_encode_index (unsigned long index, VarEncodingParams &p)
 	return out;
 }
 
-unsigned long var_decode_index (BitArray in, VarEncodingParams &p)
+unsigned long var_decode_index (ReadableBitArray *in, VarEncodingParams &p)
 {
+	unsigned long index = 0;
+	int bit_index = 0;
+	int more = NEXT_BIT(in);
+	DROP_BIT(in);
+	for (int i = 0; i < p.l; i++)
+	{
+		index |= NEXT_BIT(in) << bit_index++;
+		DROP_BIT(in);
+	}
+	if (!more)
+	{
+		p.L -= count_leading_zeros(index, bit_index, p.l);
+	}
+	while (more)
+	{
+		more = NEXT_BIT(in);
+		DROP_BIT(in);
+		if (more)
+		{
+			p.d_L++;
+		}
+		p.L++;
+		for (int i = 0; i < p.d_l; i++)
+		{
+			index |= NEXT_BIT(in) << bit_index++;
+			DROP_BIT(in);
+		}
+	}
+	adjust_var_encoding_params(p);
+
+	return index;
+}
+
+int count_leading_zeros (unsigned int index, int bit_index, int max)
+{
+	int unused_bits;
+	for (unused_bits = 0; 
+		unused_bits < max && !((index >> bit_index - unused_bits - 1) & 1); 
+		unused_bits++);
+	return unused_bits;
 }
 
 void adjust_var_encoding_params (VarEncodingParams &p)
