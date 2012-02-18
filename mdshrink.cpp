@@ -6,10 +6,8 @@
 
 using namespace std;
 
-int compress (char *in_filename, char *out_filename, OctreeIndexParams &p, VarEncodingParams &v)
+int compress (FILE *in_file, FILE *out_file, OctreeIndexParams &p, VarEncodingParams &v)
 {
-	FILE *in_file = stdin;
-	FILE *out_file = fopen(out_filename, "wb");
 	vector<Coordinate> coordinates;
 	read_md_data(coordinates, in_file);
 	unsigned long *octree_indexes = new unsigned long[coordinates.size()];
@@ -20,26 +18,35 @@ int compress (char *in_filename, char *out_filename, OctreeIndexParams &p, VarEn
 			c++)
 		{
 			octree_indexes[i] = octree_index(*c, p);
+			/*
 			printf("Coordinate: (%d, %d, %d); Index: %lx\n", c->x, c->y, c->z,
 				octree_indexes[i]);
+			*/
 			i++;
 		}
 	}
 	sort(octree_indexes, octree_indexes + coordinates.size());
 	compute_differences(octree_indexes, coordinates.size());
+	/*
+	for (int i = 0; i < coordinates.size(); i++)
+	{
+		printf("%lx\n", octree_indexes[i]);
+	}
+	*/
 
 	fwrite(&p, sizeof(OctreeIndexParams), 1, out_file);
 	fwrite(&v, sizeof(VarEncodingParams), 1, out_file);
 
 	int num_indexes = coordinates.size();
 	fwrite(&num_indexes, sizeof(int), 1, out_file);
-	printf("num_indexes %d\n", num_indexes);
+
 	{
 		OctreeIndex encoded_index;
 		WriteableBitArray b;
 		for (int i = 0; i < num_indexes; i++)
 		{
 			encoded_index = var_encode_index(octree_indexes[i], v);
+			// printf("encoded_index: %lx\n", encoded_index);
 			bit_array_append(&b, encoded_index);
 			write_bit_array(out_file, &b);
 		}
@@ -51,11 +58,8 @@ int compress (char *in_filename, char *out_filename, OctreeIndexParams &p, VarEn
 	return 0;
 }
 
-int extract (char *in_filename, char *out_filename, OctreeIndexParams &p, VarEncodingParams &v)
+int extract (FILE *in_file, FILE *out_file, OctreeIndexParams &p, VarEncodingParams &v)
 {
-	FILE *in_file = fopen(in_filename, "rb");
-	FILE *out_file = fopen(out_filename, "w");
-
 	OctreeIndexParams f_p;
 	VarEncodingParams f_v;
 	fread(&f_p, sizeof(OctreeIndexParams), 1, in_file);
@@ -91,45 +95,61 @@ int extract (char *in_filename, char *out_filename, OctreeIndexParams &p, VarEnc
 
 int main (int argc, char **argv)
 {
-	if (argc < 4)
+	if (argc < 2)
 	{
 		printf("%d\n", argc);
-		printf("Usage: %s OP IN_FILE OUT_FILE\n", argv[0]);
+		printf("Usage: %s OP [IN_FILE OUT_FILE]\n", argv[0]);
 		return 1;
 	}
 	char *op = argv[1];
-	int argi = 2;
 	VarEncodingParams v(3, 2);
 	OctreeIndexParams p(21, 21, 21);
-	bool more_flags = true;
-	while (more_flags)
+
+	int argi = 2;
+	if (argc > 2)
 	{
-		switch (argv[argi][1]) {
-			case 'l':
-				sscanf(argv[argi + 1], "%d", &v.l);
-				sscanf(argv[argi + 2], "%d", &v.d_l);
-				argi += 3;
-				break;
-			case 'w':
-				sscanf(argv[argi + 1], "%d", &p.x_width);
-				sscanf(argv[argi + 2], "%d", &p.y_width);
-				sscanf(argv[argi + 3], "%d", &p.z_width);
-				argi += 4;
-				break;
-			default:
-				more_flags = false;
-				break;
+		bool more_flags = true;
+		while (more_flags)
+		{
+			switch (argv[argi][1]) {
+				case 'l':
+					sscanf(argv[argi + 1], "%d", &v.l);
+					sscanf(argv[argi + 2], "%d", &v.d_l);
+					argi += 3;
+					break;
+				case 'w':
+					sscanf(argv[argi + 1], "%d", &p.x_width);
+					sscanf(argv[argi + 2], "%d", &p.y_width);
+					sscanf(argv[argi + 3], "%d", &p.z_width);
+					argi += 4;
+					break;
+				default:
+					more_flags = false;
+					break;
+			}
 		}
 	}
-	char *in_filename = argv[argi];
-	char *out_filename = argv[argi + 1];
+
+	FILE *in = stdin;
+	FILE *out = stdout;
+
 	if (strcmp(op, "-c") == 0)
 	{
-		return compress(in_filename, out_filename, p, v);
+		if (argi < argc)
+		{
+			in = fopen(argv[argi++], "r");
+			out = fopen(argv[argi++], "wb");
+		}
+		return compress(in, out, p, v);
 	}
 	else if (strcmp(op, "-x") == 0)
 	{
-		return extract(in_filename, out_filename, p, v);
+		if (argi < argc)
+		{
+			in = fopen(argv[argi++], "rb");
+			out = fopen(argv[argi++], "w");
+		}
+		return extract(in, out, p, v);
 	}
 	else
 	{

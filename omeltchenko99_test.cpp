@@ -28,6 +28,13 @@ int main ()
 	e_assert(str_to_bin<unsigned char>("00000011") == 3, "0b00000011 == 3");
 	e_assert(str_to_bin<unsigned char>("11000000") == 192, "0b11000000 == 192");
 	e_assert(str_to_bin<unsigned int>("101010101010") == 2730, "0b101010101010 == 2730");
+
+	{
+		unsigned long a = str_to_bin<unsigned 
+			long>("11111111111111111111111111111111");
+		e_assert(a == 0xffffffff, "str_to_bin unsigned long");
+	}
+
 	{
 		Coordinate x(3, 4, 6);
 		Coordinate y(3, 4, 6);
@@ -39,15 +46,9 @@ int main ()
 	{
 		Coordinate c(0, 1, 2);
 		OctreeIndexParams p(2, 2, 2);
-		e_assert(octree_index(c, p) == str_to_bin<unsigned int>("001010"),
-			"test small octree_index");
-	}
-
-	{
-		Coordinate c(-63214, -255551, 294961);
-		OctreeIndexParams p(21, 21, 21);
-		puts_bin(octree_index(c, p));
-		e_assert(octree_index(c, p) == str_to_bin<unsigned int>("001010"),
+		OctreeIndex i = octree_index(c, p);
+		printf("%lx\n", i);
+		e_assert(i == str_to_bin<unsigned int>("001010"),
 			"test small octree_index");
 	}
 
@@ -95,6 +96,14 @@ int main ()
 		OctreeIndexParams p(21, 21, 21);
 		e_assert(un_octree_index(i, p) == c, 
 			"un_octree_index with large negative numbers");
+	}
+
+	{
+		unsigned long a = str_to_bin<unsigned 
+			long>("11111111111111111111111111111111");
+		int n = count_used_bits(a);
+		printf("%lx %d\n", a, n);
+		e_assert(n == 32, "count_used_bits 32 bit number");
 	}
 
 	{
@@ -226,6 +235,18 @@ int main ()
 		e_assert(b.data[0] == 0xd1,
 			"read_bit_array read byte");
 		fclose(test_file);
+	}
+
+	{
+		FILE *test_file = tmpfile();
+		OctreeIndex index = 0x5ddddddddddddddd;
+		WriteableBitArray a;
+		bit_array_append(&a, index);
+		printf("active_byte: %d, available_bits: %d\n", a.active_byte, a.bits_available);
+		printf("%x %x\n", a.data[0], a.data[1]);
+		puts("");
+		write_bit_array(stdout, &a);
+		puts("");
 	}
 
 	return 0;

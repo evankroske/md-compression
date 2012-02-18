@@ -82,6 +82,7 @@ Coordinate un_octree_index (unsigned long octree_index, OctreeIndexParams &p);
 void enqueue_to_lsb (int src, int bit_index, unsigned long *dst);
 
 void bit_array_append (WriteableBitArray *a, OctreeIndex index);
+int count_used_bits (OctreeIndex index);
 void write_bit_array (FILE *out, WriteableBitArray *in);
 void read_bit_array (FILE *in, ReadableBitArray *out);
 

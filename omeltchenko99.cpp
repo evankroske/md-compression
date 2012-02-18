@@ -14,7 +14,6 @@ const uint MSB = 1 << (sizeof(uint) * 8 - 1);
 
 int count_trailing_zeros (unsigned long a, int max);
 int count_leading_zeros (unsigned int index, int bit_index, int max);
-int count_used_bits (OctreeIndex index);
 
 unsigned long octree_index (Coordinate &c, OctreeIndexParams &p)
 {
@@ -243,8 +242,8 @@ int count_used_bits (OctreeIndex index)
 {
 	int used_bits;
 	for (used_bits = 0;
-		index >> used_bits && used_bits <= sizeof(OctreeIndex);
-		used_bits++); 
+		index >> used_bits && used_bits < sizeof(OctreeIndex) * 8;
+		used_bits++); //{ printf("%d %lx\n", used_bits, index >> used_bits);}
 	return used_bits;
 }
 
@@ -275,5 +274,6 @@ void read_bit_array (FILE *in, ReadableBitArray *out)
 		fread(tmp, sizeof(char), out->active_byte, in);
 		memcpy(tmp, out->data + out->active_byte, out->size - out->active_byte);
 		memcpy(out->data, tmp, out->size);
+		out->active_byte = 0;
 	}
 }

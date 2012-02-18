@@ -11,7 +11,7 @@ T str_to_bin (char const *n_str)
 	{
 		if (n_str[i] == '1')
 		{
-			b |= 1 << n_len - 1 - i;
+			b |= 1L << (n_len - 1 - i);
 		}
 	}
 	return b;
