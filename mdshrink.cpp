@@ -8,24 +8,43 @@ using namespace std;
 
 int compress (char *in_filename, char *out_filename, OctreeIndexParams &p, VarEncodingParams &v)
 {
-	FILE *in_file = fopen(in_filename, "r");
+	FILE *in_file = stdin;
 	FILE *out_file = fopen(out_filename, "wb");
 	vector<Coordinate> coordinates;
 	read_md_data(coordinates, in_file);
 	unsigned long *octree_indexes = new unsigned long[coordinates.size()];
-	int i = 0;
-	for (vector<Coordinate>::iterator c = coordinates.begin();
-		c != coordinates.end();
-		c++)
 	{
-		octree_indexes[i] = octree_index(*c, p);
-		i++;
+		int i = 0;
+		for (vector<Coordinate>::iterator c = coordinates.begin();
+			c != coordinates.end();
+			c++)
+		{
+			octree_indexes[i] = octree_index(*c, p);
+			printf("Coordinate: (%d, %d, %d); Index: %lx\n", c->x, c->y, c->z,
+				octree_indexes[i]);
+			i++;
+		}
 	}
 	sort(octree_indexes, octree_indexes + coordinates.size());
 	compute_differences(octree_indexes, coordinates.size());
+
+	fwrite(&p, sizeof(OctreeIndexParams), 1, out_file);
+	fwrite(&v, sizeof(VarEncodingParams), 1, out_file);
+
 	int num_indexes = coordinates.size();
 	fwrite(&num_indexes, sizeof(int), 1, out_file);
-	fwrite(octree_indexes, sizeof(unsigned long), coordinates.size(), out_file);
+	printf("num_indexes %d\n", num_indexes);
+	{
+		OctreeIndex encoded_index;
+		WriteableBitArray b;
+		for (int i = 0; i < num_indexes; i++)
+		{
+			encoded_index = var_encode_index(octree_indexes[i], v);
+			bit_array_append(&b, encoded_index);
+			write_bit_array(out_file, &b);
+		}
+		write_bit_array(out_file, &b);
+	}
 	delete[] octree_indexes;
 	fclose(in_file);
 	fclose(out_file);
@@ -36,19 +55,37 @@ int extract (char *in_filename, char *out_filename, OctreeIndexParams &p, VarEnc
 {
 	FILE *in_file = fopen(in_filename, "rb");
 	FILE *out_file = fopen(out_filename, "w");
+
+	OctreeIndexParams f_p;
+	VarEncodingParams f_v;
+	fread(&f_p, sizeof(OctreeIndexParams), 1, in_file);
+	fread(&f_v, sizeof(VarEncodingParams), 1, in_file);
+	printf("OctreeIndexParams(%d, %d, %d)\n", f_p.x_width, f_p.y_width, f_p.z_width);
+	printf("VarEncodingParams(%d, %d, %d, %d)\n", f_v.l, f_v.d_l, f_v.L, f_v.d_L);
+
 	int num_indexes = 0;
 	fread(&num_indexes, sizeof(int), 1, in_file);
+	printf("num_indexes %d\n", num_indexes);
+
 	unsigned long *octree_indexes = new unsigned long[num_indexes];
-	fread(octree_indexes, sizeof(unsigned long), num_indexes, in_file);
+
+	{
+		ReadableBitArray a;
+		for (int i = 0; i < num_indexes; i++)
+		{
+			read_bit_array(in_file, &a);
+			octree_indexes[i] = var_decode_index(&a, f_v);
+		}
+	}
 	compute_sums(octree_indexes, num_indexes);
 	for (int i = 0; i < num_indexes; i++)
 	{
-		Coordinate c = un_octree_index(octree_indexes[i], p);
+		Coordinate c = un_octree_index(octree_indexes[i], f_p);
 		print_coordinate(out_file, c);
 	}
+	delete[] octree_indexes;
 	fclose(in_file);
 	fclose(out_file);
-	delete[] octree_indexes;
 	return 0;
 }
 

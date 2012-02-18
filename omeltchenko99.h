@@ -52,6 +52,8 @@ struct OctreeIndexParams{
 int x_width;
 int y_width;
 int z_width;
+OctreeIndexParams ():
+	x_width(21), y_width(21), z_width(21) {};
 OctreeIndexParams (int _x_width, int _y_width, int _z_width): 
 	x_width(_x_width), y_width(_y_width), z_width(_z_width) {};
 };
@@ -63,6 +65,8 @@ int L;
 int d_L;
 int max_L;
 int max_d_L;
+VarEncodingParams ():
+	l(3), d_l(2), L(0), d_L(0), max_L(32), max_d_L(32) {};
 VarEncodingParams (
 	int _l, 
 	int _d_l, 
@@ -87,7 +91,7 @@ void print_coordinate (FILE *f, Coordinate &c);
 void compute_differences (unsigned long *indexes, int n);
 void compute_sums (unsigned long *indexes, int n);
 
-BitArray var_encode_index (unsigned long index, VarEncodingParams &p);
+OctreeIndex var_encode_index (unsigned long index, VarEncodingParams &p);
 unsigned long var_decode_index (ReadableBitArray *in, VarEncodingParams &p);
 
 void adjust_var_encoding_params (VarEncodingParams &p);

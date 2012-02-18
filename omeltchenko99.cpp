@@ -138,7 +138,7 @@ int count_trailing_zeros (unsigned long a, int max)
 	return unused_bits;
 }
 
-BitArray var_encode_index (unsigned long index, VarEncodingParams &p)
+OctreeIndex var_encode_index (unsigned long index, VarEncodingParams &p)
 {
 	BitArray out;
 	transfer_bits(&out, &index, p.l);
@@ -168,7 +168,7 @@ BitArray var_encode_index (unsigned long index, VarEncodingParams &p)
 		p.L++;
 	}
 	adjust_var_encoding_params (p);
-	return out;
+	return out.data;
 }
 
 unsigned long var_decode_index (ReadableBitArray *in, VarEncodingParams &p)
@@ -243,8 +243,8 @@ int count_used_bits (OctreeIndex index)
 {
 	int used_bits;
 	for (used_bits = 0;
-		index >> used_bits;
-		used_bits++);
+		index >> used_bits && used_bits <= sizeof(OctreeIndex);
+		used_bits++); 
 	return used_bits;
 }
 
