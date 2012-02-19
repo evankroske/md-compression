@@ -2,7 +2,7 @@
 #include <ctime>
 #include "omeltchenko99.h"
 
-const int MAX_BITS = 21;
+const int MAX_BITS = 8;
 
 int signed_rand(int bits)
 {

@@ -48,6 +48,7 @@ int compress (FILE *in_file, FILE *out_file, OctreeIndexParams &p, VarEncodingPa
 			encoded_index = var_encode_index(octree_indexes[i], v);
 			// printf("encoded_index: %lx\n", encoded_index);
 			bit_array_append(&b, encoded_index);
+			// printf("%x\n", b.data[0]);
 			write_bit_array(out_file, &b);
 		}
 		write_bit_array(out_file, &b);
@@ -58,14 +59,14 @@ int compress (FILE *in_file, FILE *out_file, OctreeIndexParams &p, VarEncodingPa
 	return 0;
 }
 
-int extract (FILE *in_file, FILE *out_file, OctreeIndexParams &p, VarEncodingParams &v)
+int extract (FILE *in_file, FILE *out_file)
 {
-	OctreeIndexParams f_p;
-	VarEncodingParams f_v;
-	fread(&f_p, sizeof(OctreeIndexParams), 1, in_file);
-	fread(&f_v, sizeof(VarEncodingParams), 1, in_file);
-	printf("OctreeIndexParams(%d, %d, %d)\n", f_p.x_width, f_p.y_width, f_p.z_width);
-	printf("VarEncodingParams(%d, %d, %d, %d)\n", f_v.l, f_v.d_l, f_v.L, f_v.d_L);
+	OctreeIndexParams p;
+	VarEncodingParams v;
+	fread(&p, sizeof(OctreeIndexParams), 1, in_file);
+	fread(&v, sizeof(VarEncodingParams), 1, in_file);
+	printf("OctreeIndexParams(%d, %d, %d)\n", p.x_width, p.y_width, p.z_width);
+	printf("VarEncodingParams(%d, %d, %d, %d)\n", v.l, v.d_l, v.L, v.d_L);
 
 	int num_indexes = 0;
 	fread(&num_indexes, sizeof(int), 1, in_file);
@@ -78,13 +79,14 @@ int extract (FILE *in_file, FILE *out_file, OctreeIndexParams &p, VarEncodingPar
 		for (int i = 0; i < num_indexes; i++)
 		{
 			read_bit_array(in_file, &a);
-			octree_indexes[i] = var_decode_index(&a, f_v);
+			// printf("%x\n", a.data[0]);
+			octree_indexes[i] = var_decode_index(&a, v);
 		}
 	}
 	compute_sums(octree_indexes, num_indexes);
 	for (int i = 0; i < num_indexes; i++)
 	{
-		Coordinate c = un_octree_index(octree_indexes[i], f_p);
+		Coordinate c = un_octree_index(octree_indexes[i], p);
 		print_coordinate(out_file, c);
 	}
 	delete[] octree_indexes;
@@ -102,7 +104,7 @@ int main (int argc, char **argv)
 		return 1;
 	}
 	char *op = argv[1];
-	VarEncodingParams v(3, 2);
+	VarEncodingParams v(63, 2);
 	OctreeIndexParams p(21, 21, 21);
 
 	int argi = 2;
@@ -149,7 +151,7 @@ int main (int argc, char **argv)
 			in = fopen(argv[argi++], "rb");
 			out = fopen(argv[argi++], "w");
 		}
-		return extract(in, out, p, v);
+		return extract(in, out);
 	}
 	else
 	{

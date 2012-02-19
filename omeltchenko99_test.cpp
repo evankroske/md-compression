@@ -242,12 +242,48 @@ int main ()
 		OctreeIndex index = 0x5ddddddddddddddd;
 		WriteableBitArray a;
 		bit_array_append(&a, index);
+		/*
 		printf("active_byte: %d, available_bits: %d\n", a.active_byte, a.bits_available);
 		printf("%x %x\n", a.data[0], a.data[1]);
 		puts("");
 		write_bit_array(stdout, &a);
 		puts("");
+		*/
 	}
+
+	{
+		ReadableBitArray a;
+		a.data[0] = 0xdd;
+		a.data[1] = 0xdd;
+		a.data[2] = 0x60;
+		a.active_byte = 0;
+		VarEncodingParams p(3, 3);
+		OctreeIndex i = var_decode_index(&a, p);
+		e_assert(i == str_to_bin<OctreeIndex>("011101101101101"),
+			"var_decode_index long index");
+	}
+
+	{
+		VarEncodingParams p1(3, 3);
+		VarEncodingParams p2(p1);
+		OctreeIndex i = str_to_bin<OctreeIndex>(
+			"101101101101101101101101101101101101101101101101101101101101101");
+		puts_bin(i);
+		OctreeIndex j = var_encode_index(i, p1);
+		WriteableBitArray a;
+		bit_array_append(&a, j);
+		FILE *tmp = tmpfile();
+		write_bit_array(tmp, &a);
+		write_bit_array(tmp, &a);
+		unsigned char junk[30] = {'A'};
+		fwrite(junk, sizeof(unsigned char), 30, tmp);
+		rewind(tmp);
+		ReadableBitArray b;
+		read_bit_array(tmp, &b);
+		OctreeIndex k = var_decode_index(&b, p2);
+		e_assert(k == i, "integration test");
+	}
+		
 
 	return 0;
 }

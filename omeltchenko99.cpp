@@ -4,7 +4,7 @@
 #define COPY_BIT_AND_INC(dst, src, dst_i, src_i) dst |= ((src >> src_i++) & 1) << dst_i++
 #define SIGN_EXTEND(x, sig_bits) x |= msb_bitmask<unsigned int>(sizeof(unsigned int) * 8 - sig_bits)
 #define NEXT_BIT(a) ((a->data[a->active_byte] >> a->bits_not_read - 1) & 1)
-#define DROP_BIT(a) if (--(a->bits_not_read) == 0) { (a->active_byte)++; a->bits_not_read = 8;}
+#define DROP_BIT(a) if (--a->bits_not_read == 0) { (a->active_byte)++; a->bits_not_read = 8;}
 
 using namespace std;
 
@@ -271,9 +271,11 @@ void read_bit_array (FILE *in, ReadableBitArray *out)
 	if (out->active_byte > 0)
 	{
 		unsigned char *tmp = new unsigned char[out->size]();
-		fread(tmp, sizeof(char), out->active_byte, in);
-		memcpy(tmp, out->data + out->active_byte, out->size - out->active_byte);
+		int bytes_full = out->size - out->active_byte;
+		fread(tmp + bytes_full, sizeof(char), out->active_byte, in);
+		memcpy(tmp, out->data + out->active_byte, bytes_full);
 		memcpy(out->data, tmp, out->size);
 		out->active_byte = 0;
+		delete [] tmp;
 	}
 }
