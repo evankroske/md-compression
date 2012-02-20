@@ -264,11 +264,10 @@ int main ()
 	}
 
 	{
-		VarEncodingParams p1(3, 3);
+		VarEncodingParams p1(63, 3);
 		VarEncodingParams p2(p1);
 		OctreeIndex i = str_to_bin<OctreeIndex>(
 			"101101101101101101101101101101101101101101101101101101101101101");
-		puts_bin(i);
 		OctreeIndex j = var_encode_index(i, p1);
 		WriteableBitArray a;
 		bit_array_append(&a, j);
@@ -281,9 +280,45 @@ int main ()
 		ReadableBitArray b;
 		read_bit_array(tmp, &b);
 		OctreeIndex k = var_decode_index(&b, p2);
+		puts_bin(k);
 		e_assert(k == i, "integration test");
+		fclose(tmp);
 	}
+
+	{
+		Coordinate c(-999376, -595378, 1445828);
+		OctreeIndexParams p(21, 21, 21);
+	}
+
+	{
+		Coordinate c(-999376, -595378, 1445828);
+		Coordinate d(345231, 196796, -413505);
+		OctreeIndexParams p(21, 21, 21);
+		OctreeIndex i_c = octree_index(c, p);
+		OctreeIndex i_d = octree_index(d, p);
+		OctreeIndex a[2];
+		if (i_c < i_d)
+		{
+			a[0] = i_c;
+			a[1] = i_d - i_c;
+		}
+		else
+		{
+			a[0] = i_d;
+			a[1] = i_c - i_d;
+		}
 		
+		FILE *tmp = tmpfile();
+		VarEncodingParams v(63, 1);
+		WriteableBitArray b;
+		for (int i = 0; i < 2; i++)
+		{
+			unsigned long j = var_encode_index(a[0], v);
+			bit_array_append(&b, j);
+			write_bit_array(tmp, &b);
+		}
+		write_bit_array(tmp, &b);
+	}
 
 	return 0;
 }
