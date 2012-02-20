@@ -108,16 +108,16 @@ int main ()
 
 	{
 		WriteableBitArray dst;
-		unsigned long index = 0x7;
-		bit_array_append(&dst, index); 
+		BitArray b(0x7, 3);
+		bit_array_append(&dst, b); 
 		e_assert(dst.data[dst.active_byte] == msb_bitmask<unsigned char>(3), 
 			"data 1 appended");
 	}
 
 	{
 		WriteableBitArray dst;
-		unsigned long src = str_to_bin<int>("110011001010");
-		bit_array_append(&dst, src);
+		BitArray b(str_to_bin<int>("110011001010"), 12);
+		bit_array_append(&dst, b);
 		e_assert(dst.data[dst.active_byte - 1] == 
 			str_to_bin<unsigned char>("11001100"),
 			"First byte of data 2");
@@ -129,16 +129,16 @@ int main ()
 	{
 		unsigned long a = 1;
 		VarEncodingParams v(3, 2);
-		OctreeIndex a_encoded = var_encode_index(a, v);
-		e_assert(a_encoded == 4, "var_encode_index tiny number");
+		BitArray a_encoded = var_encode_index(a, v);
+		e_assert(a_encoded.data == 4, "var_encode_index tiny number");
 		e_assert(v.L == -2, "var_encode_index L increase");
 	}
 
 	{
-		unsigned long index = str_to_bin<unsigned long>("00011101");
+		OctreeIndex index = str_to_bin<unsigned long>("00011101");
 		VarEncodingParams v(3, 2);
-		OctreeIndex encoded_index = var_encode_index(index, v);
-		e_assert(encoded_index == str_to_bin<unsigned long>("1101011"),
+		BitArray encoded_index = var_encode_index(index, v);
+		e_assert(encoded_index.data == str_to_bin<unsigned long>("1101011"),
 			"var_encode_index small number");
 		e_assert(v.L == 1, 
 			"var_encode_index L increase");
@@ -147,7 +147,7 @@ int main ()
 	{
 		unsigned long index = str_to_bin<unsigned long>("001101");
 		VarEncodingParams v(3, 3);
-		OctreeIndex encoded_index = var_encode_index(index, v);
+		var_encode_index(index, v);
 		e_assert(v.d_L == -2, 
 			"var_encode_index d_L decrease");
 	}
@@ -155,7 +155,7 @@ int main ()
 	{
 		unsigned long index = str_to_bin<unsigned long>("1001101");
 		VarEncodingParams v(3, 2);
-		OctreeIndex encoded_index = var_encode_index(index, v);
+		var_encode_index(index, v);
 		e_assert(v.d_L == 1, 
 			"var_encode_index d_L increase");
 	}
@@ -163,7 +163,7 @@ int main ()
 	{
 		unsigned long index = str_to_bin<unsigned long>("10101010101");
 		VarEncodingParams v(3, 2, 0, 0, 2, 2);
-		OctreeIndex encoded_index = var_encode_index(index, v);
+		var_encode_index(index, v);
 		e_assert(v.d_l == 3 && v.d_L == 0, 
 			"var_encode_index d_l increased in response to d_L");
 	}
@@ -238,20 +238,6 @@ int main ()
 	}
 
 	{
-		FILE *test_file = tmpfile();
-		OctreeIndex index = 0x5ddddddddddddddd;
-		WriteableBitArray a;
-		bit_array_append(&a, index);
-		/*
-		printf("active_byte: %d, available_bits: %d\n", a.active_byte, a.bits_available);
-		printf("%x %x\n", a.data[0], a.data[1]);
-		puts("");
-		write_bit_array(stdout, &a);
-		puts("");
-		*/
-	}
-
-	{
 		ReadableBitArray a;
 		a.data[0] = 0xdd;
 		a.data[1] = 0xdd;
@@ -268,7 +254,7 @@ int main ()
 		VarEncodingParams p2(p1);
 		OctreeIndex i = str_to_bin<OctreeIndex>(
 			"101101101101101101101101101101101101101101101101101101101101101");
-		OctreeIndex j = var_encode_index(i, p1);
+		BitArray j = var_encode_index(i, p1);
 		WriteableBitArray a;
 		bit_array_append(&a, j);
 		FILE *tmp = tmpfile();
@@ -308,6 +294,7 @@ int main ()
 			a[1] = i_c - i_d;
 		}
 		
+		/*
 		FILE *tmp = tmpfile();
 		VarEncodingParams v(63, 1);
 		WriteableBitArray b;
@@ -318,6 +305,8 @@ int main ()
 			write_bit_array(tmp, &b);
 		}
 		write_bit_array(tmp, &b);
+		fclose(tmp);
+		*/
 	}
 
 	return 0;

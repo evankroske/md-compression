@@ -81,7 +81,7 @@ unsigned long octree_index (Coordinate &c, OctreeIndexParams &p);
 Coordinate un_octree_index (unsigned long octree_index, OctreeIndexParams &p);
 void enqueue_to_lsb (int src, int bit_index, unsigned long *dst);
 
-void bit_array_append (WriteableBitArray *a, OctreeIndex index);
+void bit_array_append (WriteableBitArray *a, BitArray b);
 int count_used_bits (OctreeIndex index);
 void write_bit_array (FILE *out, WriteableBitArray *in);
 void read_bit_array (FILE *in, ReadableBitArray *out);
@@ -92,7 +92,7 @@ void print_coordinate (FILE *f, Coordinate &c);
 void compute_differences (unsigned long *indexes, int n);
 void compute_sums (unsigned long *indexes, int n);
 
-OctreeIndex var_encode_index (unsigned long index, VarEncodingParams &p);
+BitArray var_encode_index (unsigned long index, VarEncodingParams &p);
 unsigned long var_decode_index (ReadableBitArray *in, VarEncodingParams &p);
 
 void adjust_var_encoding_params (VarEncodingParams &p);

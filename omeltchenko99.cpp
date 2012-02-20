@@ -49,9 +49,10 @@ Coordinate un_octree_index (unsigned long octree_index, OctreeIndexParams &p)
 }
 
 // Write used bits from index into a
-void bit_array_append (WriteableBitArray *a, OctreeIndex index)
+void bit_array_append (WriteableBitArray *a, BitArray b)
 {
-	int bits_used = count_used_bits(index);
+	OctreeIndex index = b.data;
+	int bits_used = b.bits_used;
 	int bits_written = 0;
 	int bits_not_written = bits_used;
 	int bits_last_written = 0;
@@ -137,7 +138,7 @@ int count_trailing_zeros (unsigned long a, int max)
 	return unused_bits;
 }
 
-OctreeIndex var_encode_index (unsigned long index, VarEncodingParams &p)
+BitArray var_encode_index (unsigned long index, VarEncodingParams &p)
 {
 	BitArray out;
 	transfer_bits(&out, &index, p.l);
@@ -167,7 +168,7 @@ OctreeIndex var_encode_index (unsigned long index, VarEncodingParams &p)
 		p.L++;
 	}
 	adjust_var_encoding_params (p);
-	return out.data;
+	return out;
 }
 
 unsigned long var_decode_index (ReadableBitArray *in, VarEncodingParams &p)
