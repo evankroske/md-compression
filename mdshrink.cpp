@@ -41,12 +41,13 @@ int compress (FILE *in_file, FILE *out_file, OctreeIndexParams &p, VarEncodingPa
 	fwrite(&num_indexes, sizeof(int), 1, out_file);
 
 	{
-		OctreeIndex encoded_index;
+		BitArray encoded_index;
 		WriteableBitArray b;
 		for (int i = 0; i < num_indexes; i++)
 		{
+			printf("index: %lx\n", octree_indexes[i]);
 			encoded_index = var_encode_index(octree_indexes[i], v);
-			// printf("encoded_index: %lx\n", encoded_index);
+			// printf("encoded_index: %lx\n", encoded_index.data);
 			bit_array_append(&b, encoded_index);
 			// printf("%x\n", b.data[0]);
 			write_bit_array(out_file, &b);
@@ -65,12 +66,12 @@ int extract (FILE *in_file, FILE *out_file)
 	VarEncodingParams v;
 	fread(&p, sizeof(OctreeIndexParams), 1, in_file);
 	fread(&v, sizeof(VarEncodingParams), 1, in_file);
-	printf("OctreeIndexParams(%d, %d, %d)\n", p.x_width, p.y_width, p.z_width);
-	printf("VarEncodingParams(%d, %d, %d, %d)\n", v.l, v.d_l, v.L, v.d_L);
+	// printf("OctreeIndexParams(%d, %d, %d)\n", p.x_width, p.y_width, p.z_width);
+	// printf("VarEncodingParams(%d, %d, %d, %d)\n", v.l, v.d_l, v.L, v.d_L);
 
 	int num_indexes = 0;
 	fread(&num_indexes, sizeof(int), 1, in_file);
-	printf("num_indexes %d\n", num_indexes);
+	// printf("num_indexes %d\n", num_indexes);
 
 	unsigned long *octree_indexes = new unsigned long[num_indexes];
 
@@ -81,6 +82,7 @@ int extract (FILE *in_file, FILE *out_file)
 			read_bit_array(in_file, &a);
 			// printf("%x\n", a.data[0]);
 			octree_indexes[i] = var_decode_index(&a, v);
+			printf("decoded index: %lx\n", octree_indexes[i]);
 		}
 	}
 	compute_sums(octree_indexes, num_indexes);

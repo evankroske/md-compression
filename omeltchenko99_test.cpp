@@ -272,8 +272,21 @@ int main ()
 	}
 
 	{
-		Coordinate c(-999376, -595378, 1445828);
-		OctreeIndexParams p(21, 21, 21);
+		BitArray b(0x6ca15b6b85a31440, 63);
+		VarEncodingParams v(63, 2);
+		VarEncodingParams v2(v);
+		WriteableBitArray a;
+		bit_array_append(&a, b);
+		FILE *tmp = tmpfile();
+		write_bit_array(tmp, &a);
+		bit_array_append(&a, b);
+		write_bit_array(tmp, &a);
+		write_bit_array(tmp, &a);
+		rewind(tmp);
+		ReadableBitArray c;
+		read_bit_array(tmp, &c);
+		OctreeIndex j = var_decode_index(&c, v2);
+		
 	}
 
 	{
@@ -307,6 +320,54 @@ int main ()
 		write_bit_array(tmp, &b);
 		fclose(tmp);
 		*/
+	}
+
+	{
+		OctreeIndex i = 0x7;
+		e_assert(count_leading_zeros(i, 5, 3) == 2,
+			"count_leading_zeros easy");
+	}
+
+	{
+		OctreeIndex i = 0x3ffffffffL;
+		int j = count_leading_zeros(i, 36, 4);
+		e_assert(j == 2,
+			"count_leading_zeros medium");
+	}
+
+	{
+		Coordinate a(-999376, -595378, 144582);
+		OctreeIndexParams p;
+		OctreeIndex i = octree_index(a, p);
+		Coordinate b = un_octree_index(i, p);
+		print_coordinate(stdout, b);
+		e_assert(a == b, "un_octree_index hard");
+	}
+
+	{
+		OctreeIndex a[] = {1, 2, 3, 4, 5};
+		OctreeIndex b[] = {1, 2, 3, 4, 5};
+		compute_differences(b, 5);
+		compute_sums(b, 5);
+		bool good = true;
+		for (int i = 0; i < 5; i++)
+		{
+			good = good && a[i] == b[i];
+		}
+		e_assert(good, "compute_differences and compute_sums easy");
+	}
+
+	{
+		OctreeIndex a[] = {0x1ffffffff, 0x2ffffffff, 0x3ffffffff, 0x4ffffffff, 0x5ffffffff};
+		OctreeIndex b[] = {0x1ffffffff, 0x2ffffffff, 0x3ffffffff, 0x4ffffffff, 0x5ffffffff};
+		compute_differences(b, 5);
+		compute_sums(b, 5);
+		bool good = true;
+		for (int i = 0; i < 5; i++)
+		{
+			good = good && a[i] == b[i];
+		}
+		e_assert(good, "compute_differences and compute_sums hard");
 	}
 
 	return 0;

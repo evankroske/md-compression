@@ -3,7 +3,7 @@
 
 #define COPY_BIT_AND_INC(dst, src, dst_i, src_i) dst |= ((src >> src_i++) & 1) << dst_i++
 #define SIGN_EXTEND(x, sig_bits) x |= msb_bitmask<unsigned int>(sizeof(unsigned int) * 8 - sig_bits)
-#define NEXT_BIT(a) ((a->data[a->active_byte] >> a->bits_not_read - 1) & 1)
+#define NEXT_BIT(a) ((unsigned long)(a->data[a->active_byte] >> a->bits_not_read - 1) & 1)
 #define DROP_BIT(a) if (--a->bits_not_read == 0) { (a->active_byte)++; a->bits_not_read = 8;}
 
 using namespace std;
@@ -13,7 +13,6 @@ typedef unsigned int uint;
 const uint MSB = 1 << (sizeof(uint) * 8 - 1);
 
 int count_trailing_zeros (unsigned long a, int max);
-int count_leading_zeros (unsigned int index, int bit_index, int max);
 
 unsigned long octree_index (Coordinate &c, OctreeIndexParams &p)
 {
@@ -28,7 +27,7 @@ unsigned long octree_index (Coordinate &c, OctreeIndexParams &p)
 	return octree_index;
 }
 
-Coordinate un_octree_index (unsigned long octree_index, OctreeIndexParams &p)
+Coordinate un_octree_index (OctreeIndex octree_index, OctreeIndexParams &p)
 {
 	Coordinate c;
 	int index_bits_used = p.x_width + p.y_width + p.z_width;
@@ -190,23 +189,27 @@ unsigned long var_decode_index (ReadableBitArray *in, VarEncodingParams &p)
 	{
 		more = NEXT_BIT(in);
 		DROP_BIT(in);
-		if (more)
-		{
-			p.d_L++;
-		}
-		p.L++;
 		for (int i = 0; i < p.d_l; i++)
 		{
 			index |= NEXT_BIT(in) << bit_index++;
 			DROP_BIT(in);
 		}
+		if (more)
+		{
+			p.d_L++;
+		}
+		else
+		{
+			p.d_L -= count_leading_zeros(index, bit_index, p.d_l);
+		}
+		p.L++;
 	}
 	adjust_var_encoding_params(p);
 
 	return index;
 }
 
-int count_leading_zeros (unsigned int index, int bit_index, int max)
+int count_leading_zeros (OctreeIndex index, int bit_index, int max)
 {
 	int unused_bits;
 	for (unused_bits = 0; 

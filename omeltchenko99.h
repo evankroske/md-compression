@@ -94,6 +94,7 @@ void compute_sums (unsigned long *indexes, int n);
 
 BitArray var_encode_index (unsigned long index, VarEncodingParams &p);
 unsigned long var_decode_index (ReadableBitArray *in, VarEncodingParams &p);
+int count_leading_zeros (OctreeIndex index, int bit_index, int max);
 
 void adjust_var_encoding_params (VarEncodingParams &p);
 
