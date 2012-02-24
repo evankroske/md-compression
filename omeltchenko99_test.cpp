@@ -266,7 +266,6 @@ int main ()
 		ReadableBitArray b;
 		read_bit_array(tmp, &b);
 		OctreeIndex k = var_decode_index(&b, p2);
-		puts_bin(k);
 		e_assert(k == i, "integration test");
 		fclose(tmp);
 	}
@@ -336,15 +335,6 @@ int main ()
 	}
 
 	{
-		Coordinate a(-999376, -595378, 144582);
-		OctreeIndexParams p;
-		OctreeIndex i = octree_index(a, p);
-		Coordinate b = un_octree_index(i, p);
-		print_coordinate(stdout, b);
-		e_assert(a == b, "un_octree_index hard");
-	}
-
-	{
 		OctreeIndex a[] = {1, 2, 3, 4, 5};
 		OctreeIndex b[] = {1, 2, 3, 4, 5};
 		compute_differences(b, 5);
@@ -358,8 +348,21 @@ int main ()
 	}
 
 	{
-		OctreeIndex a[] = {0x1ffffffff, 0x2ffffffff, 0x3ffffffff, 0x4ffffffff, 0x5ffffffff};
-		OctreeIndex b[] = {0x1ffffffff, 0x2ffffffff, 0x3ffffffff, 0x4ffffffff, 0x5ffffffff};
+		OctreeIndex a[] = {1, 5, 10, 12, 13};
+		OctreeIndex b[] = {1, 5, 10, 12, 13};
+		compute_differences(b, 5);
+		compute_sums(b, 5);
+		bool good = true;
+		for (int i = 0; i < 5; i++)
+		{
+			good = good && a[i] == b[i];
+		}
+		e_assert(good, "compute_differences and compute_sums medium");
+	}
+
+	{
+		OctreeIndex a[] = {0x1ffffffffL, 0x2ffffffffL, 0x3ffffffffL, 0x4ffffffffL, 0x5ffffffffL};
+		OctreeIndex b[] = {0x1ffffffffL, 0x2ffffffffL, 0x3ffffffffL, 0x4ffffffffL, 0x5ffffffffL};
 		compute_differences(b, 5);
 		compute_sums(b, 5);
 		bool good = true;
@@ -369,6 +372,52 @@ int main ()
 		}
 		e_assert(good, "compute_differences and compute_sums hard");
 	}
+
+	{
+		Coordinate a(-999376, -595378, 144582);
+		OctreeIndexParams p(21, 21, 21);
+		OctreeIndex i = octree_index(a, p);
+		Coordinate b = un_octree_index(i, p);
+		e_assert(a == b, "un_octree_index easy");
+	}
+
+	{
+		OctreeIndex i = 0x48bbbdc108ac5e5;
+		VarEncodingParams v(58, 2, -22, 0);
+		BitArray a = var_encode_index(i, v);
+		OctreeIndex bad = 0x34f46a21077bba22;
+		puts_bin(i);
+		puts_bin(bad);
+	}
+
+/*
+	{
+		VarEncodingParams v(58, 2, -22, 0);
+		ReadableBitArray a;
+		unsigned char b[] = {0xd5, 0x3d, 0x1a, 0x88, 0x49, 0xde, 0xee, 0x88, 0x8a};
+		memcpy(a.data, b, 9);
+		a.active_byte = 0;
+		a.bits_not_read = 3;
+		puts_bin_str(a.data, 9);
+		OctreeIndex i = var_decode_index(&a, v);
+		printf("%lx\n", i);
+		e_assert(i == 0x48bbbdc108ac5e5L, "var_decode_index?");
+	}
+	// 1045ddee484562f2
+	// 11010101 00111101 00011010 10001000 01001001 11011110 11101110 10001000 10001010
+	
+	{
+		OctreeIndex i = 0x48bbbdc108ac5e5L;
+		VarEncodingParams v(58, 2, -22, 0);
+		BitArray a = var_encode_index(i, v);
+
+		WriteableBitArray b;
+		b.data[0] = 0xd0;
+		b.bits_available = 3;
+		bit_array_append(&b, a);
+		puts_bin_str(b.data, 9);
+	}
+*/
 
 	return 0;
 }

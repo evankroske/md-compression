@@ -18,21 +18,12 @@ int compress (FILE *in_file, FILE *out_file, OctreeIndexParams &p, VarEncodingPa
 			c++)
 		{
 			octree_indexes[i] = octree_index(*c, p);
-			/*
-			printf("Coordinate: (%d, %d, %d); Index: %lx\n", c->x, c->y, c->z,
-				octree_indexes[i]);
-			*/
 			i++;
 		}
 	}
 	sort(octree_indexes, octree_indexes + coordinates.size());
+
 	compute_differences(octree_indexes, coordinates.size());
-	/*
-	for (int i = 0; i < coordinates.size(); i++)
-	{
-		printf("%lx\n", octree_indexes[i]);
-	}
-	*/
 
 	fwrite(&p, sizeof(OctreeIndexParams), 1, out_file);
 	fwrite(&v, sizeof(VarEncodingParams), 1, out_file);
@@ -45,11 +36,15 @@ int compress (FILE *in_file, FILE *out_file, OctreeIndexParams &p, VarEncodingPa
 		WriteableBitArray b;
 		for (int i = 0; i < num_indexes; i++)
 		{
-			printf("index: %lx\n", octree_indexes[i]);
+			// printf("%lx\n", octree_indexes[i]);
 			encoded_index = var_encode_index(octree_indexes[i], v);
-			// printf("encoded_index: %lx\n", encoded_index.data);
+			/*
+			if (i == 45)
+			{
+				printf("%lx %lx %d\n", octree_indexes[i], encoded_index.data, encoded_index.bits_used);
+			}
+			*/
 			bit_array_append(&b, encoded_index);
-			// printf("%x\n", b.data[0]);
 			write_bit_array(out_file, &b);
 		}
 		write_bit_array(out_file, &b);
@@ -66,12 +61,9 @@ int extract (FILE *in_file, FILE *out_file)
 	VarEncodingParams v;
 	fread(&p, sizeof(OctreeIndexParams), 1, in_file);
 	fread(&v, sizeof(VarEncodingParams), 1, in_file);
-	// printf("OctreeIndexParams(%d, %d, %d)\n", p.x_width, p.y_width, p.z_width);
-	// printf("VarEncodingParams(%d, %d, %d, %d)\n", v.l, v.d_l, v.L, v.d_L);
 
 	int num_indexes = 0;
 	fread(&num_indexes, sizeof(int), 1, in_file);
-	// printf("num_indexes %d\n", num_indexes);
 
 	unsigned long *octree_indexes = new unsigned long[num_indexes];
 
@@ -80,9 +72,8 @@ int extract (FILE *in_file, FILE *out_file)
 		for (int i = 0; i < num_indexes; i++)
 		{
 			read_bit_array(in_file, &a);
-			// printf("%x\n", a.data[0]);
 			octree_indexes[i] = var_decode_index(&a, v);
-			printf("decoded index: %lx\n", octree_indexes[i]);
+			// printf("%lx\n", octree_indexes[i]);
 		}
 	}
 	compute_sums(octree_indexes, num_indexes);

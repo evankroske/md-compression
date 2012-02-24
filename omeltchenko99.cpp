@@ -143,7 +143,7 @@ BitArray var_encode_index (unsigned long index, VarEncodingParams &p)
 	transfer_bits(&out, &index, p.l);
 	if (index)
 	{
-		out.data |= 1 << p.l;
+		out.data |= 1L << p.l;
 	}
 	else
 	{
@@ -154,6 +154,7 @@ BitArray var_encode_index (unsigned long index, VarEncodingParams &p)
 	while (index)
 	{
 		out.data <<= 1;
+		out.bits_used += 1;
 		transfer_bits(&out, &index, p.d_l);
 		if (index)
 		{

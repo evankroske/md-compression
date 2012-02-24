@@ -45,3 +45,15 @@ void puts_bin (T n)
 	free(str);
 }
 
+template <typename T>
+void puts_bin_str (T *a, int n)
+{
+	char *str = (char *)malloc((sizeof(T) * 8 * 1) * n);
+	for (int i = 0; i < n; i++)
+	{
+		bin_to_str(str + i * 9, a[i]);
+		str[i * 9 + 8] = ' ';
+	}
+	puts(str);
+	free(str);
+}
