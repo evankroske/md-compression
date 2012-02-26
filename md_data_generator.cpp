@@ -21,7 +21,6 @@ int main (int argc, char **argv)
 {
 	int num_coordinates = 100;
 	if (argc > 1) {
-		puts(argv[1]);
 		sscanf(argv[1], "%d", &num_coordinates);
 	}
 	int max_bits = MAX_BITS;
