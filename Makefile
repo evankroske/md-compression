@@ -1,8 +1,8 @@
 CXXFLAGS += -g
 
-all: main md_data_generator mdshrink omeltchenko99_test
+all: main md_data_generator mdshrink omeltchenko99_test discretize
 
-test: test_omeltchenko99
+test: test_discretize
 
 clean:
 	rm -f *.o main omeltchenko99_test md_data_generator
@@ -18,6 +18,9 @@ test_mdshrink: mdshrink md_data_generator
 	./mdshrink -c data.txt compressed; \
 	./mdshrink -x compressed uncompressed.txt; \
 	sort < uncompressed.txt | diff -q data.txt -
+
+test_discretize: discretize
+	./$< -e < data100.dat | ./$< -d
 
 main: omeltchenko99.h omeltchenko99.o
 
