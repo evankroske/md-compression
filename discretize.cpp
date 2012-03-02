@@ -60,6 +60,12 @@ int main (int argc, char **argv)
 		}
 	}
 
+	static const char data_input_fmt[] = "%s %d %d %d %lf %lf %lf %lf %lf";
+	static const char float_input_fmt[] = "%la\t%la\t%la";
+	static const char float_output_fmt[] = "%la\t%la\t%la\n";
+	static const char int_input_fmt[] = "%d\t%d\t%d\n";
+	static const char *int_output_fmt = int_input_fmt;
+
 	int count = 0;
 	if (f == extract_coordinates_fun)
 	{
@@ -72,12 +78,12 @@ int main (int argc, char **argv)
 		double u, v;
 		while (true)
 		{
-			fscanf(in, "%s %d %d %d %lf %lf %lf %lf %lf", type, &i, &j, &k, &x, &y, &z, &u, &v);
+			fscanf(in, data_input_fmt, type, &i, &j, &k, &x, &y, &z, &u, &v);
 			if (feof(in))
 			{
 				break;
 			}
-			fprintf(out, "%lf\t%lf\t%lf\n", x, y, z);
+			fprintf(out, float_output_fmt, x, y, z);
 		}
 	}
 	else if (f == discretize_fun)
@@ -87,31 +93,31 @@ int main (int argc, char **argv)
 		double x, y, z;
 		while (true)
 		{
-			fscanf(in, "%lf\t%lf\t%lf", &x, &y, &z);
+			fscanf(in, float_input_fmt, &x, &y, &z);
 			if (feof(in))
 			{
 				break;
 			}
-			fprintf(out, "%d\t%d\t%d\n", discretize(x, step), 
+			fprintf(out, int_output_fmt, discretize(x, step), 
 				discretize(y, step), discretize(z, step));
 			square_error_sum += square_error(x, step) + square_error(y, step) +
 				square_error(z, step);
 			count++;
 		}
 		double avg_error = sqrt(square_error_sum) / count;
-		fprintf(stderr, "Average error: %lf\n", avg_error);
+		fprintf(stderr, "Average error: %.14lf\n", avg_error);
 	} 
 	else if (f = undiscretize_fun)
 	{
 		int x, y, z;
 		while (true)
 		{
-			fscanf(in, "%d\t%d\t%d", &x, &y, &z);
+			fscanf(in, int_input_fmt, &x, &y, &z);
 			if (feof(in))
 			{
 				break;
 			}
-			fprintf(out, "%lf\t%lf\t%lf\n", undiscretize(x, step), 
+			fprintf(out, float_output_fmt, undiscretize(x, step), 
 				undiscretize(y, step), undiscretize(z, step));
 		}
 	}
