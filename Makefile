@@ -2,7 +2,7 @@ CXXFLAGS += -g
 
 all: main md_data_generator mdshrink omeltchenko99_test discretize
 
-test: test_discretize
+test: test_integration
 
 clean:
 	rm -f *.o main omeltchenko99_test md_data_generator
@@ -20,7 +20,14 @@ test_mdshrink: mdshrink md_data_generator
 	sort < uncompressed.txt | diff -q data.txt -
 
 test_discretize: discretize
-	./$< -e < data100.dat | ./$< -d
+	./$< -e < data100.dat | ./$< -d -s 0.0000001 2>&1
+
+test_integration: discretize mdshrink
+	./discretize -e data100.dat coordinates.txt; \
+	./discretize -d -s 0.0001 < coordinates.txt | ./mdshrink -c > compressed; \
+	./mdshrink -x < compressed | ./discretize -u -s 0.0001 > out.txt; \
+	sort coordinates.txt > coordinates-sorted.txt; \
+	sort out.txt > out-sorted.txt
 
 main: omeltchenko99.h omeltchenko99.o
 

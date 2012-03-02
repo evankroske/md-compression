@@ -19,7 +19,7 @@ int main (int argc, char **argv)
 {
 	static const char opts[] = "dues:";
 
-	double step = 0.00001;
+	double step = 0.0001;
 	function_selector f = invalid_fun;
 	int opt = getopt(argc, argv, opts);
 	while (opt != -1)
@@ -37,7 +37,6 @@ int main (int argc, char **argv)
 				break;
 			case 's':
 				sscanf(optarg, "%lf", &step);
-				printf("%lf\n", step);
 				break;
 			default:
 				usage();
@@ -61,8 +60,8 @@ int main (int argc, char **argv)
 	}
 
 	static const char data_input_fmt[] = "%s %d %d %d %lf %lf %lf %lf %lf";
-	static const char float_input_fmt[] = "%la\t%la\t%la";
-	static const char float_output_fmt[] = "%la\t%la\t%la\n";
+	static const char float_input_fmt[] = "%lf\t%lf\t%lf";
+	static const char float_output_fmt[] = "%lf\t%lf\t%lf\n";
 	static const char int_input_fmt[] = "%d\t%d\t%d\n";
 	static const char *int_output_fmt = int_input_fmt;
 
@@ -125,7 +124,13 @@ int main (int argc, char **argv)
 
 int discretize (double f, double step)
 {
-	return (int)(f / step);
+	int d = (int)(f / step);
+	if (d < 0 && f > 0 || d > 0 && f < 0)
+	{
+		puts("Overflow");
+		exit(1);
+	}
+	return d;
 }
 
 double undiscretize (int n, double step)
