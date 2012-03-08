@@ -11,6 +11,12 @@ int compress (FILE *in_file, FILE *out_file, OctreeIndexParams &p, VarEncodingPa
 	vector<Coordinate> coordinates;
 	read_md_data(coordinates, in_file);
 	unsigned long *octree_indexes = new unsigned long[coordinates.size()];
+	if (octree_indexes == NULL)
+	{
+		fprintf(stderr, "Memory allocation error\n");
+		exit(1);
+	}
+
 	{
 		int i = 0;
 		for (vector<Coordinate>::iterator c = coordinates.begin();
