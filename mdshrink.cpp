@@ -18,6 +18,13 @@ int compress (FILE *in_file, FILE *out_file, OctreeIndexParams &p, VarEncodingPa
 			c++)
 		{
 			octree_indexes[i] = octree_index(*c, p);
+			Coordinate test = un_octree_index(octree_indexes[i], p);
+			if (test != *c)
+			{
+				fprintf(stderr, "Octree index overflow\n", i);
+				print_coordinate(stderr, *c);
+				exit(1);
+			}
 			i++;
 		}
 	}

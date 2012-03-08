@@ -20,7 +20,7 @@ test_mdshrink: mdshrink md_data_generator
 	sort < uncompressed.txt | diff -q data.txt -
 
 test_discretize: discretize
-	./$< -e < data100.dat | ./$< -d -s 0.0000001 2>&1
+	./$< -e < data100.dat | ./$< -d -s 0.0001 > /dev/null
 
 test_integration: discretize mdshrink
 	./discretize -e data100.dat coordinates.txt; \

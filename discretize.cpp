@@ -13,13 +13,14 @@ void usage () {
 
 int discretize (double f, double step);
 double undiscretize (int n, double step);
+double error (double f, double step);
 double square_error (double f, double step);
 
 int main (int argc, char **argv)
 {
 	static const char opts[] = "dues:";
 
-	double step = 0.0001;
+	double step = 0.001;
 	function_selector f = invalid_fun;
 	int opt = getopt(argc, argv, opts);
 	while (opt != -1)
@@ -88,6 +89,9 @@ int main (int argc, char **argv)
 	else if (f == discretize_fun)
 	{
 		double square_error_sum = 0;
+		double avg_error_x = 0;
+		double avg_error_y = 0;
+		double avg_error_z = 0;
 
 		double x, y, z;
 		while (true)
@@ -99,12 +103,20 @@ int main (int argc, char **argv)
 			}
 			fprintf(out, int_output_fmt, discretize(x, step), 
 				discretize(y, step), discretize(z, step));
+			avg_error_x += abs(error(x, step));
+			avg_error_y += abs(error(y, step));
+			avg_error_z += abs(error(z, step));
 			square_error_sum += square_error(x, step) + square_error(y, step) +
 				square_error(z, step);
 			count++;
 		}
 		double avg_error = sqrt(square_error_sum) / count;
+		avg_error_x /= count;
+		avg_error_y /= count;
+		avg_error_z /= count;
 		fprintf(stderr, "Average error: %.14lf\n", avg_error);
+		fprintf(stderr, "Average error per axis: (%.14lf, %.14lf, %.14lf)\n",
+			avg_error_x, avg_error_y, avg_error_z);
 	} 
 	else if (f = undiscretize_fun)
 	{
@@ -138,7 +150,12 @@ double undiscretize (int n, double step)
 	return (double)n * step;
 }
 
+double error (double f, double step)
+{
+	return f - undiscretize(discretize(f, step), step);
+}
+
 double square_error (double f, double step)
 {
-	return pow(f - undiscretize(discretize(f, step), step), 2);
+	return pow(error(f, step), 2);
 }
