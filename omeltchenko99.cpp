@@ -1,5 +1,6 @@
 #include "omeltchenko99.h"
 #include "bin.h"
+#include <cassert>
 
 #define COPY_BIT_AND_INC(dst, src, dst_i, src_i) dst |= ((src >> src_i++) & 1) << dst_i++
 #define SIGN_EXTEND(x, sig_bits) x |= msb_bitmask<unsigned int>(sizeof(unsigned int) * 8 - sig_bits)
@@ -50,6 +51,7 @@ Coordinate un_octree_index (OctreeIndex octree_index, OctreeIndexParams &p)
 // Write used bits from index into a
 void bit_array_append (WriteableBitArray *a, BitArray b)
 {
+	assert(b.bits_used <= (sizeof b.data) * 8);
 	OctreeIndex index = b.data;
 	int bits_used = b.bits_used;
 	int bits_written = 0;
@@ -79,6 +81,7 @@ void bit_array_append (WriteableBitArray *a, BitArray b)
 		bits_written += bits_last_written;
 		bits_not_written -= bits_last_written;
 	}
+	assert(a->active_byte < a->size);
 }
 
 void read_md_data (vector<Coordinate> &coordinates, FILE *f)
@@ -119,6 +122,7 @@ void compute_sums (unsigned long *indexes, int n)
 
 void transfer_bits (BitArray *out, unsigned long *index, int num_bits)
 {
+	assert(num_bits <= sizeof(out->data) * 8);
 	for (int i = 0; i < num_bits; i++)
 	{
 		out->data <<= 1;
@@ -126,6 +130,7 @@ void transfer_bits (BitArray *out, unsigned long *index, int num_bits)
 		*index >>= 1;
 	}
 	out->bits_used += num_bits;
+	assert(out->bits_used <= sizeof(out->data) * 8);
 }
 
 int count_trailing_zeros (unsigned long a, int max)
@@ -137,11 +142,12 @@ int count_trailing_zeros (unsigned long a, int max)
 	return unused_bits;
 }
 
-BitArray var_encode_index (unsigned long index, VarEncodingParams &p)
+BitArray var_encode_index (unsigned long index_difference, VarEncodingParams &p)
 {
 	BitArray out;
-	transfer_bits(&out, &index, p.l);
-	if (index)
+	OctreeIndex tmp_index = index_difference;
+	transfer_bits(&out, &tmp_index, p.l);
+	if (tmp_index)
 	{
 		out.data |= 1L << p.l;
 	}
@@ -151,12 +157,12 @@ BitArray var_encode_index (unsigned long index, VarEncodingParams &p)
 	}
 	out.bits_used += 1;
 
-	while (index)
+	while (tmp_index)
 	{
 		out.data <<= 1;
 		out.bits_used += 1;
-		transfer_bits(&out, &index, p.d_l);
-		if (index)
+		transfer_bits(&out, &tmp_index, p.d_l);
+		if (tmp_index)
 		{
 			out.data |= 1 << p.d_l;
 			p.d_L++;
@@ -241,6 +247,7 @@ void adjust_var_encoding_params (VarEncodingParams &p)
 		p.d_l--;
 		p.d_L = 0;
 	}
+	assert(p.l + 1 + p.d_l + 1 <= sizeof(unsigned long) * 8);
 }
 
 int count_used_bits (OctreeIndex index)
@@ -254,6 +261,7 @@ int count_used_bits (OctreeIndex index)
 
 void write_bit_array (FILE *out, WriteableBitArray *in)
 {
+	assert(in->active_byte < in->size);
 	if (in->active_byte > 0)
 	{
 		fwrite(in->data, sizeof(char), in->active_byte, out);

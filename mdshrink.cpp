@@ -49,14 +49,7 @@ int compress (FILE *in_file, FILE *out_file, OctreeIndexParams &p, VarEncodingPa
 		WriteableBitArray b;
 		for (int i = 0; i < num_indexes; i++)
 		{
-			// printf("%lx\n", octree_indexes[i]);
 			encoded_index = var_encode_index(octree_indexes[i], v);
-			/*
-			if (i == 45)
-			{
-				printf("%lx %lx %d\n", octree_indexes[i], encoded_index.data, encoded_index.bits_used);
-			}
-			*/
 			bit_array_append(&b, encoded_index);
 			write_bit_array(out_file, &b);
 		}
@@ -110,7 +103,7 @@ int main (int argc, char **argv)
 		return 1;
 	}
 	char *op = argv[1];
-	VarEncodingParams v(63, 2);
+	VarEncodingParams v(61, 1);
 	OctreeIndexParams p(21, 21, 21);
 
 	int argi = 2;

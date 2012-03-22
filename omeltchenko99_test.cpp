@@ -250,10 +250,10 @@ int main ()
 	}
 
 	{
-		VarEncodingParams p1(63, 3);
+		VarEncodingParams p1(62, 0);
 		VarEncodingParams p2(p1);
 		OctreeIndex i = str_to_bin<OctreeIndex>(
-			"101101101101101101101101101101101101101101101101101101101101101");
+			"01101101101101101101101101101101101101101101101101101101101101");
 		BitArray j = var_encode_index(i, p1);
 		WriteableBitArray a;
 		bit_array_append(&a, j);
@@ -271,8 +271,8 @@ int main ()
 	}
 
 	{
-		BitArray b(0x6ca15b6b85a31440, 63);
-		VarEncodingParams v(63, 2);
+		BitArray b(0x1ca15b6b85a31440, 63);
+		VarEncodingParams v(62, 0);
 		VarEncodingParams v2(v);
 		WriteableBitArray a;
 		bit_array_append(&a, b);
