@@ -15,7 +15,7 @@ const uint MSB = 1 << (sizeof(uint) * 8 - 1);
 
 int count_trailing_zeros (unsigned long a, int max);
 
-unsigned long octree_index (Coordinate &c, OctreeIndexParams &p)
+unsigned long octree_index (Coordinate &c, OctreeIndexParams const &p)
 {
 	unsigned long octree_index = 0;
 	for (int i = sizeof(unsigned long) * 8 - 1; i >= 0; i--)
@@ -28,7 +28,7 @@ unsigned long octree_index (Coordinate &c, OctreeIndexParams &p)
 	return octree_index;
 }
 
-Coordinate un_octree_index (OctreeIndex octree_index, OctreeIndexParams &p)
+Coordinate un_octree_index (OctreeIndex octree_index, OctreeIndexParams const &p)
 {
 	Coordinate c;
 	int index_bits_used = p.x_width + p.y_width + p.z_width;

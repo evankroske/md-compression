@@ -77,8 +77,8 @@ VarEncodingParams (
 	l(_l), d_l(_d_l), L(_L), d_L(_d_L), max_L(_max_L), max_d_L(_max_d_L) {};
 };
 
-unsigned long octree_index (Coordinate &c, OctreeIndexParams &p);
-Coordinate un_octree_index (unsigned long octree_index, OctreeIndexParams &p);
+unsigned long octree_index (Coordinate &c, OctreeIndexParams const &p);
+Coordinate un_octree_index (unsigned long octree_index, OctreeIndexParams const &p);
 void enqueue_to_lsb (int src, int bit_index, unsigned long *dst);
 
 void bit_array_append (WriteableBitArray *a, BitArray b);

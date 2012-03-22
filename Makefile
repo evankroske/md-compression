@@ -2,7 +2,7 @@ CXXFLAGS += -g
 
 all: md_data_generator mdshrink omeltchenko99_test discretize
 
-test: test_omeltchenko99
+test: test_omeltchenko99_simple
 
 clean:
 	rm -f *.o main omeltchenko99_test md_data_generator
@@ -41,6 +41,6 @@ debug_mdshrink: omeltchenko99.o omeltchenko99.h
 
 md_data_generator: omeltchenko99.o
 
-omeltchenko99-simple.o: omeltchenko99.o
+omeltchenko99-simple.o: omeltchenko99.o omeltchenko99.h
 
-omeltchenko99-simple-test: omeltchenko99-simple.o
+omeltchenko99-simple-test: omeltchenko99-simple.o omeltchenko99-simple.h omeltchenko99.o
