@@ -38,13 +38,28 @@ int y;
 int z;
 Coordinate (): x(0), y(0), z(0) {};
 Coordinate(int _x, int _y, int _z): x(_x), y(_y), z(_z) {};
-bool operator== (Coordinate const &other)
+bool operator== (Coordinate const &other) const
 {
 	return x == other.x && y == other.y && z == other.z;
 };
-bool operator!= (Coordinate const &other)
+bool operator!= (Coordinate const &other) const
 {
 	return !(*this == other);
+};
+bool operator< (Coordinate const &rhs) const
+{
+	if (rhs.x - x != 0)
+	{
+		return rhs.x - x > 0;
+	}
+	else if (rhs.y - y != 0)
+	{
+		return rhs.y - y > 0;
+	}
+	else
+	{
+		return rhs.z - z > 0;
+	}
 };
 };
 

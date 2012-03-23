@@ -1,6 +1,7 @@
 #include "omeltchenko99-simple.h"
 #include "omeltchenko99.h"
 #include <cassert>
+#include <algorithm>
 
 using namespace std;
 
@@ -10,21 +11,39 @@ static const OctreeIndexParams DEFAULT_OCTREE_INDEX_PARAMS(21, 21, 21);
 void list_write_bit_array (list<unsigned char> &out, WriteableBitArray *b);
 void list_read_bit_array (list<unsigned char> &in, ReadableBitArray *b);
 
-void compress (list<unsigned char> &compressed, vector<Coordinate> &coordinates)
+void compress (list<unsigned char> &compressed, list<Coordinate> &coordinates)
 {
+	vector<RTreeIndex> indexes;
+	for (list<Coordinate>::iterator i = coordinates.begin();
+		i != coordinates.end();
+		i++)
+	{
+		indexes.push_back(get_rtree_index(*i));
+	}
+	sort(indexes.begin(), indexes.end());
+	compute_differences(&indexes[0], indexes.size());
+	varlength_encode(compressed, indexes);
 }
 
-void uncompress (list<Coordinate> &coordinates, list<unsigned char> &compressed)
+void uncompress (list<Coordinate> &coordinates, list<unsigned char> &compressed, int num_compressed)
 {
-	
+	vector<RTreeIndex> indexes;
+	varlength_decode(indexes, compressed, num_compressed);
+	compute_sums(&indexes[0], indexes.size());
+	for (vector<RTreeIndex>::iterator i = indexes.begin();
+		i != indexes.end();
+		i++)
+	{
+		coordinates.push_back(get_coordinate(*i));
+	}
 }
 
-void varlength_encode (list<unsigned char> &compressed, list<RTreeIndex> &index_diffs)
+void varlength_encode (list<unsigned char> &compressed, vector<RTreeIndex> &index_diffs)
 {
 	VarEncodingParams v(DEFAULT_VAR_ENCODING_PARAMS);
 	BitArray encoded_index;
 	WriteableBitArray b;
-	for (list<RTreeIndex>::iterator i = index_diffs.begin();
+	for (vector<RTreeIndex>::iterator i = index_diffs.begin();
 		i != index_diffs.end();
 		i++)
 	{
@@ -35,7 +54,7 @@ void varlength_encode (list<unsigned char> &compressed, list<RTreeIndex> &index_
 	list_write_bit_array(compressed, &b);
 }
 
-void varlength_decode (list<RTreeIndex> &index_diffs, list<unsigned char> &compressed, int num_compressed)
+void varlength_decode (vector<RTreeIndex> &index_diffs, list<unsigned char> &compressed, int num_compressed)
 {
 	VarEncodingParams v(DEFAULT_VAR_ENCODING_PARAMS);
 	ReadableBitArray b;

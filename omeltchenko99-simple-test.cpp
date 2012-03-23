@@ -3,6 +3,7 @@
 #include <vector>
 #include <list>
 #include <algorithm>
+#include <set>
 
 using namespace std;
 
@@ -34,17 +35,36 @@ int main ()
 			Coordinate(2424, 3346, 52566)
 		};
 
-		vector<Coordinate> coordinates(tmp, tmp + 10);
+		list<Coordinate> coordinates(tmp, tmp + 10);
 		list<unsigned char> compressed;
 		compress(compressed, coordinates);
 		list<Coordinate> uncompressed;
-		uncompress(uncompressed, compressed);
+		uncompress(uncompressed, compressed, 10);
+		
+		bool subset = true;
+		set<Coordinate> coordinatesSet(coordinates.begin(), coordinates.end());
+		for (list<Coordinate>::iterator i = uncompressed.begin();
+			i != uncompressed.end();
+			i++)
+		{
+			set<Coordinate>::iterator c_i = coordinatesSet.find(*i);
+			if (c_i != coordinatesSet.end())
+			{
+				coordinatesSet.erase(c_i);
+			}
+			else
+			{
+				subset = false;
+				break;
+			}
+		}
+		e_assert(subset && coordinatesSet.empty(), "compress and uncompress");
 	}
 
 	{
 		Coordinate c(2192, 3295, 52299);
 		Coordinate c2 = get_coordinate(get_rtree_index(c));
-		e_assert(c == c2, "compress and uncompress");
+		e_assert(c == c2, "get_coordinate and get_rtree_index");
 	}
 
 	{
@@ -60,10 +80,10 @@ int main ()
 			0x27304659283498,
 			0x12983740651983
 		};
-		list<RTreeIndex> index_diffs(tmp, tmp + 10);
+		vector<RTreeIndex> index_diffs(tmp, tmp + 10);
 		list<unsigned char> compressed;
 		varlength_encode(compressed, index_diffs);
-		list<RTreeIndex> uncompressed;
+		vector<RTreeIndex> uncompressed;
 		varlength_decode(uncompressed, compressed, 10);
 		e_assert(equal(index_diffs.begin(), index_diffs.end(), uncompressed.begin()), "varlength_encode and varlength_decode");
 	}

@@ -5,7 +5,12 @@ all: md_data_generator mdshrink omeltchenko99_test discretize
 test: test_omeltchenko99_simple
 
 clean:
-	rm -f *.o main omeltchenko99_test md_data_generator
+	rm -rf *.o main omeltchenko99_test md_data_generator omeltchenko99-simple-test build
+
+dist: omeltchenko99-simple.o omeltchenko99-simple.h omeltchenko99.o omeltchenko99.h
+	rm -rf build; \
+	mkdir build; \
+	cp $^ build
 
 test_omeltchenko99: omeltchenko99_test
 	./omeltchenko99_test
@@ -39,8 +44,8 @@ mdshrink: omeltchenko99.o omeltchenko99.h
 debug_mdshrink: omeltchenko99.o omeltchenko99.h
 	g++ -g mdshrink.cpp omeltchenko99.o -o $@
 
-md_data_generator: omeltchenko99.o
+md_data_generator: omeltchenko99.o omeltchenko99.h
 
 omeltchenko99-simple.o: omeltchenko99.o omeltchenko99.h
 
-omeltchenko99-simple-test: omeltchenko99-simple.o omeltchenko99-simple.h omeltchenko99.o
+omeltchenko99-simple-test: omeltchenko99-simple.o omeltchenko99-simple.h omeltchenko99.o omeltchenko99.h

@@ -99,6 +99,11 @@ void read_md_data (vector<Coordinate> &coordinates, FILE *f)
 	}
 }
 
+void print_coordinate (FILE *f, Coordinate const &c)
+{
+	fprintf(f, "%d\t%d\t%d\n", c.x, c.y, c.z);
+}
+
 void print_coordinate (FILE *f, Coordinate &c)
 {
 	fprintf(f, "%d\t%d\t%d\n", c.x, c.y, c.z);
