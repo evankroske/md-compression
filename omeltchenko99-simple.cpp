@@ -88,7 +88,7 @@ void list_read_bit_array (list<unsigned char> &in, ReadableBitArray *out)
 		unsigned char tmp[9];
 		int bytes_full = out->size - out->active_byte;
 		//fread(tmp + bytes_full, sizeof(char), out->active_byte, in);
-		for (int i = 0; i < out->active_byte; i++)
+		for (int i = 0; i < out->active_byte && in.size() > 0; i++)
 		{
 			tmp[i + bytes_full] = in.front();
 			in.pop_front();
