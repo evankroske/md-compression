@@ -45,56 +45,58 @@ int main ()
 
 	{
 		Coordinate c(0, 1, 2);
-		OctreeIndexParams p(2, 2, 2);
-		OctreeIndex i = octree_index(c, p);
-		printf("%lx\n", i);
-		e_assert(i == str_to_bin<unsigned int>("001010"),
+		OctreeIndexParams p(3, 3, 3);
+		Coordinate d = un_octree_index(octree_index(c, p), p);
+		e_assert(c == d,
 			"test small octree_index");
 	}
 
 	{
 		Coordinate c(0, -1, 2);
 		OctreeIndexParams p(3, 3, 3);
-		e_assert(octree_index(c, p) == str_to_bin<unsigned int>("010011010"),
+		Coordinate d = un_octree_index(octree_index(c, p), p);
+		e_assert(c == d,
 			"Small negative octree_index test");
 	}
 
 	{
-		Coordinate c(1530854, 570703, 1802708);
+		Coordinate c(0xfad13, 0xf1239, 0xf9802);
 		OctreeIndexParams p(21, 21, 21);
-		e_assert(octree_index(c, p) == 0x572d7168a7be15f2,
+		Coordinate d = un_octree_index(octree_index(c, p), p);
+		e_assert(c == d,
 			"test octree_index with big numbers");
 	}
 
 	{
 		Coordinate c(739195, -699465, -95248);
 		OctreeIndexParams p(21, 21, 21);
-		e_assert(octree_index(c, p) == 0x3aee38233f77f8b6,
+		Coordinate d = un_octree_index(octree_index(c, p), p);
+		e_assert(c == d,
 			"test octree_index with big numbers");
 	}
 
 	{
-		long i = str_to_bin<long>("111111");
-		Coordinate c(3, 3, 3);
+		OctreeIndex i = str_to_bin<OctreeIndex>("111111");
 		OctreeIndexParams p(3, 3, 3);
-		e_assert(un_octree_index(i, p) == c, 
+		Coordinate d = un_octree_index(i, p);
+		OctreeIndex j = octree_index(d, p);
+		e_assert(i == j,
 			"un_octree_index with small numbers");
 	}
 
 	{
 		Coordinate c(1, -1, 3);
-		long i = str_to_bin<long>("0011111");
 		OctreeIndexParams p(2, 2, 3);
-		Coordinate d = un_octree_index(i, p);
+		Coordinate d = un_octree_index(octree_index(c, p), p);
 		e_assert(d == c, 
 			"un_octree_index small negative numbers test");
 	}
 
 	{
-		unsigned long i = 0x3aee38233f77f8b6;
 		Coordinate c(739195, -699465, -95248);
 		OctreeIndexParams p(21, 21, 21);
-		e_assert(un_octree_index(i, p) == c, 
+		Coordinate d = un_octree_index(octree_index(c, p), p);
+		e_assert(d == c, 
 			"un_octree_index with large negative numbers");
 	}
 
@@ -102,7 +104,6 @@ int main ()
 		unsigned long a = str_to_bin<unsigned 
 			long>("11111111111111111111111111111111");
 		int n = count_used_bits(a);
-		printf("%lx %d\n", a, n);
 		e_assert(n == 32, "count_used_bits 32 bit number");
 	}
 
@@ -305,20 +306,6 @@ int main ()
 			a[0] = i_d;
 			a[1] = i_c - i_d;
 		}
-		
-		/*
-		FILE *tmp = tmpfile();
-		VarEncodingParams v(63, 1);
-		WriteableBitArray b;
-		for (int i = 0; i < 2; i++)
-		{
-			unsigned long j = var_encode_index(a[0], v);
-			bit_array_append(&b, j);
-			write_bit_array(tmp, &b);
-		}
-		write_bit_array(tmp, &b);
-		fclose(tmp);
-		*/
 	}
 
 	{
@@ -374,48 +361,31 @@ int main ()
 	}
 
 	{
-		Coordinate a(-999376, -595378, 144582);
+		Coordinate a(1, 2, 3);
+		Coordinate b(1, 1, -1);
 		OctreeIndexParams p(21, 21, 21);
-		OctreeIndex i = octree_index(a, p);
-		Coordinate b = un_octree_index(i, p);
-		e_assert(a == b, "un_octree_index easy");
-	}
-
-	{
-		OctreeIndex i = 0x48bbbdc108ac5e5;
-		VarEncodingParams v(58, 2, -22, 0);
-		BitArray a = var_encode_index(i, v);
-		OctreeIndex bad = 0x34f46a21077bba22;
-		puts_bin(i);
-		puts_bin(bad);
+		OctreeIndex a_i = octree_index(a, p);
+		OctreeIndex b_i = octree_index(b, p);
+		Coordinate c = un_octree_index(b_i, p);
+		e_assert(a_i - b_i < 0x1fffffffffffffffL, "octree_index positive-negative difference");
 	}
 
 /*
 	{
-		VarEncodingParams v(58, 2, -22, 0);
-		ReadableBitArray a;
-		unsigned char b[] = {0xd5, 0x3d, 0x1a, 0x88, 0x49, 0xde, 0xee, 0x88, 0x8a};
-		memcpy(a.data, b, 9);
-		a.active_byte = 0;
-		a.bits_not_read = 3;
-		puts_bin_str(a.data, 9);
-		OctreeIndex i = var_decode_index(&a, v);
-		printf("%lx\n", i);
-		e_assert(i == 0x48bbbdc108ac5e5L, "var_decode_index?");
-	}
-	// 1045ddee484562f2
-	// 11010101 00111101 00011010 10001000 01001001 11011110 11101110 10001000 10001010
-	
-	{
-		OctreeIndex i = 0x48bbbdc108ac5e5L;
-		VarEncodingParams v(58, 2, -22, 0);
-		BitArray a = var_encode_index(i, v);
-
-		WriteableBitArray b;
-		b.data[0] = 0xd0;
-		b.bits_available = 3;
-		bit_array_append(&b, a);
-		puts_bin_str(b.data, 9);
+		int a = 1, b = -1;
+		int bias = 1 << 20;
+		unsigned int c, d;
+		c = a + bias;
+		d = b + bias;
+		c &= lsb_bitmask<unsigned int>(21);
+		d &= lsb_bitmask<unsigned int>(21);
+		int e, f;
+		e = c - bias;
+		f = d - bias;
+		printf("%x %x\n", a, e);
+		printf("%x %x\n", b, f);
+		printf("%x %x\n", c, d);
+		printf("%x\n", bias + 1);
 	}
 */
 

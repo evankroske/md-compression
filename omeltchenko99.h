@@ -8,59 +8,60 @@
 typedef unsigned long OctreeIndex;
 
 struct WriteableBitArray {
-const static int size = sizeof(unsigned long) + 1;
-unsigned char data[size];
-int active_byte;
-int bits_available;
-WriteableBitArray (): data(), active_byte(0), 
-	bits_available(8) {};
+	const static int size = sizeof(unsigned long) + 1;
+	unsigned char data[size];
+	int active_byte;
+	int bits_available;
+	WriteableBitArray (): data(), active_byte(0), 
+		bits_available(8) {};
 };
 
 struct ReadableBitArray {
-const static int size = sizeof(unsigned long) + 1;
-unsigned char data[size];
-int active_byte;
-int bits_not_read;
-ReadableBitArray (): data(), active_byte(size), 
-	bits_not_read(8) {};
+	const static int size = sizeof(unsigned long) + 1;
+	unsigned char data[size];
+	int active_byte;
+	int bits_not_read;
+	ReadableBitArray (): data(), active_byte(size), 
+		bits_not_read(8) {};
 };
 
 struct BitArray {
-unsigned long data;
-int bits_used;
-BitArray (): data(0), bits_used(0) {};
-BitArray (unsigned long _data, int _bits_used): data(_data), bits_used(_bits_used) {};
+	unsigned long data;
+	int bits_used;
+	BitArray (): data(0), bits_used(0) {};
+	BitArray (unsigned long _data, int _bits_used): data(_data), 
+		bits_used(_bits_used) {};
 };
 
 struct Coordinate {
-int x;
-int y;
-int z;
-Coordinate (): x(0), y(0), z(0) {};
-Coordinate(int _x, int _y, int _z): x(_x), y(_y), z(_z) {};
-bool operator== (Coordinate const &other) const
-{
-	return x == other.x && y == other.y && z == other.z;
-};
-bool operator!= (Coordinate const &other) const
-{
-	return !(*this == other);
-};
-bool operator< (Coordinate const &rhs) const
-{
-	if (rhs.x - x != 0)
+	int x;
+	int y;
+	int z;
+	Coordinate (): x(0), y(0), z(0) {};
+	Coordinate(int _x, int _y, int _z): x(_x), y(_y), z(_z) {};
+	bool operator== (Coordinate const &other) const
 	{
-		return rhs.x - x > 0;
-	}
-	else if (rhs.y - y != 0)
+		return x == other.x && y == other.y && z == other.z;
+	};
+	bool operator!= (Coordinate const &other) const
 	{
-		return rhs.y - y > 0;
-	}
-	else
+		return !(*this == other);
+	};
+	bool operator< (Coordinate const &rhs) const
 	{
-		return rhs.z - z > 0;
-	}
-};
+		if (rhs.x - x != 0)
+		{
+			return rhs.x - x > 0;
+		}
+		else if (rhs.y - y != 0)
+		{
+			return rhs.y - y > 0;
+		}
+		else
+		{
+			return rhs.z - z > 0;
+		}
+	};
 };
 
 struct OctreeIndexParams{

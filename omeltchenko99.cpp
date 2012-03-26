@@ -17,12 +17,17 @@ int count_trailing_zeros (unsigned long a, int max);
 
 unsigned long octree_index (Coordinate &c, OctreeIndexParams const &p)
 {
+	
 	unsigned long octree_index = 0;
+	unsigned int b_x, b_y, b_z;
+	b_x = c.x + (1 << (p.x_width - 1));
+	b_y = c.y + (1 << (p.y_width - 1));
+	b_z = c.z + (1 << (p.z_width - 1));
 	for (int i = sizeof(unsigned long) * 8 - 1; i >= 0; i--)
 	{
-		if (i < p.x_width) octree_index = append_bit(c.x, octree_index, i);
-		if (i < p.y_width) octree_index = append_bit(c.y, octree_index, i);
-		if (i < p.z_width) octree_index = append_bit(c.z, octree_index, i);
+		if (i < p.x_width) octree_index = append_bit(b_x, octree_index, i);
+		if (i < p.y_width) octree_index = append_bit(b_y, octree_index, i);
+		if (i < p.z_width) octree_index = append_bit(b_z, octree_index, i);
 	}
 
 	return octree_index;
@@ -30,21 +35,23 @@ unsigned long octree_index (Coordinate &c, OctreeIndexParams const &p)
 
 Coordinate un_octree_index (OctreeIndex octree_index, OctreeIndexParams const &p)
 {
-	Coordinate c;
+	unsigned int b_x = 0, b_y = 0, b_z = 0;
 	int index_bits_used = p.x_width + p.y_width + p.z_width;
 	for (int i = 0, x_i = 0, y_i = 0, z_i = 0; i < index_bits_used; )
 	{
 		// If there are bits of x left in the octree index, copy the least-
 		// significant uncopied bit from octree_index to the least-significant 
 		// unfilled bit of c.x
-		if (z_i < p.z_width) COPY_BIT_AND_INC(c.z, octree_index, z_i, i);
-		if (y_i < p.y_width) COPY_BIT_AND_INC(c.y, octree_index, y_i, i);
-		if (x_i < p.x_width) COPY_BIT_AND_INC(c.x, octree_index, x_i, i);
+		if (z_i < p.z_width) COPY_BIT_AND_INC(b_z, octree_index, z_i, i);
+		if (y_i < p.y_width) COPY_BIT_AND_INC(b_y, octree_index, y_i, i);
+		if (x_i < p.x_width) COPY_BIT_AND_INC(b_x, octree_index, x_i, i);
 	}
-	// If the MSB of x is 1, pad x with 1s to interpret it as negative
-	if ((c.x >> (p.x_width - 1)) & 1) SIGN_EXTEND(c.x, p.x_width);
-	if ((c.y >> (p.y_width - 1)) & 1) SIGN_EXTEND(c.y, p.y_width);
-	if ((c.z >> (p.z_width - 1)) & 1) SIGN_EXTEND(c.z, p.z_width);
+
+	Coordinate c;
+	c.x = b_x - (1 << (p.x_width - 1));
+	c.y = b_y - (1 << (p.y_width - 1));
+	c.z = b_z - (1 << (p.z_width - 1));
+
 	return c;
 }
 

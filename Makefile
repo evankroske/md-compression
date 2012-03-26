@@ -2,7 +2,7 @@ CXXFLAGS += -g
 
 all: md_data_generator mdshrink omeltchenko99_test discretize
 
-test: test_omeltchenko99_simple
+test: test_omeltchenko99
 
 clean:
 	rm -rf *.o main omeltchenko99_test md_data_generator omeltchenko99-simple-test build
