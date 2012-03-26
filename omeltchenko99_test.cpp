@@ -63,6 +63,8 @@ int main ()
 		Coordinate c(0xfad13, 0xf1239, 0xf9802);
 		OctreeIndexParams p(21, 21, 21);
 		Coordinate d = un_octree_index(octree_index(c, p), p);
+		print_coordinate(stdout, c);
+		print_coordinate(stdout, d);
 		e_assert(c == d,
 			"test octree_index with big numbers");
 	}
@@ -72,7 +74,7 @@ int main ()
 		OctreeIndexParams p(21, 21, 21);
 		Coordinate d = un_octree_index(octree_index(c, p), p);
 		e_assert(c == d,
-			"test octree_index with big numbers");
+			"test octree_index with more big numbers");
 	}
 
 	{
@@ -367,7 +369,7 @@ int main ()
 		OctreeIndex a_i = octree_index(a, p);
 		OctreeIndex b_i = octree_index(b, p);
 		Coordinate c = un_octree_index(b_i, p);
-		e_assert(a_i - b_i < 0x1fffffffffffffffL, "octree_index positive-negative difference");
+		e_assert((a_i > b_i) ? a_i - b_i : b_i - a_i < 100, "octree_index positive-negative difference");
 	}
 
 /*

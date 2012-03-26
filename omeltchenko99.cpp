@@ -1,6 +1,7 @@
 #include "omeltchenko99.h"
 #include "bin.h"
 #include <cassert>
+#include <cstdlib>
 
 #define COPY_BIT_AND_INC(dst, src, dst_i, src_i) dst |= ((src >> src_i++) & 1) << dst_i++
 #define SIGN_EXTEND(x, sig_bits) x |= msb_bitmask<unsigned int>(sizeof(unsigned int) * 8 - sig_bits)
@@ -19,16 +20,19 @@ unsigned long octree_index (Coordinate &c, OctreeIndexParams const &p)
 {
 	
 	unsigned long octree_index = 0;
-	unsigned int b_x, b_y, b_z;
-	b_x = c.x + (1 << (p.x_width - 1));
-	b_y = c.y + (1 << (p.y_width - 1));
-	b_z = c.z + (1 << (p.z_width - 1));
+	int b_x, b_y, b_z;
+	b_x = abs(c.x);
+	b_y = abs(c.y);
+	b_z = abs(c.z);
 	for (int i = sizeof(unsigned long) * 8 - 1; i >= 0; i--)
 	{
-		if (i < p.x_width) octree_index = append_bit(b_x, octree_index, i);
-		if (i < p.y_width) octree_index = append_bit(b_y, octree_index, i);
-		if (i < p.z_width) octree_index = append_bit(b_z, octree_index, i);
+		if (i < p.x_width - 1) octree_index = append_bit(b_x, octree_index, i);
+		if (i < p.y_width - 1) octree_index = append_bit(b_y, octree_index, i);
+		if (i < p.z_width - 1) octree_index = append_bit(b_z, octree_index, i);
 	}
+	octree_index = append_bit(c.x, octree_index, sizeof(int) * 8 - 1);
+	octree_index = append_bit(c.y, octree_index, sizeof(int) * 8 - 1);
+	octree_index = append_bit(c.z, octree_index, sizeof(int) * 8 - 1);
 
 	return octree_index;
 }
@@ -37,7 +41,7 @@ Coordinate un_octree_index (OctreeIndex octree_index, OctreeIndexParams const &p
 {
 	unsigned int b_x = 0, b_y = 0, b_z = 0;
 	int index_bits_used = p.x_width + p.y_width + p.z_width;
-	for (int i = 0, x_i = 0, y_i = 0, z_i = 0; i < index_bits_used; )
+	for (int i = 3, x_i = 0, y_i = 0, z_i = 0; i < index_bits_used; )
 	{
 		// If there are bits of x left in the octree index, copy the least-
 		// significant uncopied bit from octree_index to the least-significant 
@@ -48,9 +52,9 @@ Coordinate un_octree_index (OctreeIndex octree_index, OctreeIndexParams const &p
 	}
 
 	Coordinate c;
-	c.x = b_x - (1 << (p.x_width - 1));
-	c.y = b_y - (1 << (p.y_width - 1));
-	c.z = b_z - (1 << (p.z_width - 1));
+	c.z = ((octree_index >> 0) & 1) ? -b_z : b_z;
+	c.y = ((octree_index >> 1) & 1) ? -b_y : b_y;
+	c.x = ((octree_index >> 2) & 1) ? -b_x : b_x;
 
 	return c;
 }
